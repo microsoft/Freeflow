@@ -1,0 +1,3108 @@
+Vladimir Sokolovsky <vlad@mellanox.com>	2013-05-01
+
+    Roll 1.1.6mlnx2 release
+    
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-26
+
+    libibverbs: XRC sample, fix message size
+    
+    Fix size to prevent memory overflow
+    
+
+Igor Ivanov <Igor.Ivanov@itseez.com>	2013-04-30
+
+    tests: Add unit-tests for Cross-channel API
+    
+    Added unit-tests based on gtest test environment to test verbs api.
+    Tests related Cross-channel functionality are included.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-20
+
+    examples: Add examples for Cross-channel API
+    
+    Added examples using Cross-channel verbs API and adapted to use new
+    verbs extension API.
+    ibv_cc_task_pp is based on TASKs usage
+    ibv_cc_pingpong demonstrates wait opcode usage
+    
+    Added manuals into man folder for these two examples.
+    
+
+Igor Ivanov <Igor.Ivanov@itseez.com>	2013-04-30
+
+    man: Add manuals for new verbs api
+    
+    Added manuals for:
+    inserted ibv_create_qp_ex() into ibv_create_qp man;
+    inserted ibv_query_device_ex() into ibv_query_device man;
+    created new manuals for following functions as ibv_modify_cq, ibv_post_task
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-19
+
+    libibverbs: Add Cross-channel capability
+    
+    Added ibv_post_task.
+    
+    This code enables the hardware feature referred as Cross-channel. The
+    functionality supports the posting of a task list to a Host Channel Adapter (HCA),
+    with a single completion queue entry indicating when the task list has completed.
+    The task list may have entries posted to multiple Queue Pairs (QPs) and includes
+    send and receive communication primitives, as well as the communication
+    coordination primitives wait, send_enable, and receive_enable. Since a single post
+    of tasks to QPs initiates the communication pattern, and all progress is handled
+    by the HCA.
+    
+    ibv_post_task - post a list of send/recv tasks (TAKSs) to QPs
+    
+    It is added using verbs extensions approach.
+    
+
+Igor Ivanov <Igor.Ivanov@itseez.com>	2013-03-14
+
+    libibverbs: Added new flag IB_DEVICE_CROSS_CHANNEL into enum ib_device_cap_flags
+    
+    This flag demonstrates presence of Cross-channel capability in a device.
+    
+    The device can be programmed to execute IO operation flows that involve
+    synchronization of IO operations on different IO channels as well as conditional
+    execution based on arithmetic operations on memory-resident variables. This
+    capability enables to program complex IO operation flows with a single function
+    call, hereby significantly reducing overhead associated with IO processing.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-19
+
+    libibverbs: Add ibv_query_device_ex
+    
+    It is added using verbs extensions approach and extend abilities of existing
+    function such as ibv_query_device. This code adds new struct verbs_device_attr
+    that extends existing struct ibv_device_attr with new field as
+    struct ibv_device_calc_cap calc_cap.
+    This code does not add new uverbs call as ibv_cmd_query_device_ex to process
+    IB_USER_VERBS_CMD_QUERY_DEVICE_EX command.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-19
+
+    libibverbs: Add ibv_modify_cq
+    
+    This code adds new uverbs call as ibv_cmd_modify_cq to process
+    IB_USER_VERBS_CMD_MODIFY_CQ_EX command. It is added using verbs extensions
+    approach.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-19
+
+    libibverbs: Support Cross-channel capability in ibv_create_qp_ex
+    
+    This code adds new uverbs call as ibv_cmd_create_qp_ex to process
+    IB_USER_VERBS_CMD_CREATE_QP_EX command. It is added using verbs extensions
+    approach and extend abilities of existing functions such as ibv_create_qp.
+    
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-19
+
+    libibverbs: XRC open flags
+    
+    Add missing mode in open system call
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-19
+
+    libibverbs: Add XRC sample source file
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-12
+
+    libibverbs: Add XRC sample application
+    
+
+Sean Hefty <sean.hefty@intel.com>	2012-09-19
+
+    libibverbs: Add man page for ibv_open_qp
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-12
+
+    libibverbs: Add ibv_open_qp
+    
+    XRC receive QPs are shareable across multiple processes.  Allow
+    any process with access to the xrc domain to open an existing
+    QP.  After opening the QP, the process will receive events
+    related to the QP and be able to modify the QP.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-12
+
+    libibverbs: Add support for XRC QPs
+    
+    XRC queue pairs: xrc defines two new types of QPs.  The
+    initiator, or send-side, xrc qp behaves similar to a send-
+    only RC qp.  xrc send qp's are managed through the existing
+    QP functions.  The send_wr structure is extended in a back-
+    wards compatible way to support posting sends on a send xrc
+    qp, which require specifying the remote xrc srq.
+    
+    The target, or receive-side, xrc qp behaves differently
+    than other implemented qp's.  A recv xrc qp can be created,
+    modified, and destroyed like other qp's through the existing
+    calls.  The qp_init_attr structure is extended for xrc qp's.
+    
+    Because xrc recv qp's are bound to an xrcd, rather than a pd,
+    it is intended to be used among multiple processes.  Any process
+    with access to an xrcd may allocate and connect an xrc recv qp.
+    The actual xrc recv qp is allocated and managed by the kernel.
+    If the owning process explicit destroys the xrc recv qp, it is
+    destroyed.  However, if the xrc recv qp is left open when the
+    user process exits or closes its device, then the lifetime of
+    the xrc recv qp is bound with the lifetime of the xrcd.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-12
+
+    livibverbs: Add support for XRC SRQs
+    
+    XRC support requires the use of a new type of SRQ.
+    XRC shared receive queues: xrc srq's are similar to normal
+    srq's, except that they are bound to an xrcd, rather
+    than to a protection domain.  Based on the current spec
+    and implementation, they are only usable with xrc qps.  To
+    support xrc srq's, we define a new srq_init_attr structure
+    to include an srq type and other needed information.
+    
+    The kernel ABI is also updated to allow creating extended
+    SRQs.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-05-07
+
+    libibverbs: Introduce XRC domains
+    
+    XRC introduces several new concepts and structures, one of
+    which is the XRC domain.
+    
+    XRC domains: xrcd's are a type of protection domain used to
+    associate shared receive queues with xrc queue pairs.  Since
+    xrcd are meant to be shared among multiple processes, we
+    introduce new APIs to open/close xrcd's.
+    
+    The user to kernel ABI is extended to account for opening/
+    closing the xrcd.
+    
+
+Eli Cohen <eli@mellanox.com>	2013-04-09
+
+    Remove old APIs definitions
+    
+    This patch adds changes from Sean's libibverbs patch 1 v5 that were not taken
+    already to ofed's libibverbs.
+    
+
+Hadar Hen Zion <hadarh@mellanox.com>	2013-02-11
+
+    Implement ibv_create_flow and ibv_destroy_flow
+    
+    According to the new flow steering verbs API and using the extended verbs
+    mechanism.
+    ibv_create_flow verb allow user space applications to attach flow
+    specifications for a QP. ibv_flow_attr is a pointer for flow specifications
+    structs that contain mandatory control parameters and optional L2, L3 and L4
+    headers.
+    ibv_flow_attr struct is a mandatory control struct:
+    
+    struct ibv_flow_attr {
+uint32_t comp_mask;           
+enum ibv_flow_attr_type type;           
+uint16_t size;           
+uint16_t priority;           
+uint8_t num_of_specs;           
+uint8_t port;           
+uint32_t flags;           
+/* Following are the optional layers according to user request           
+ * struct ibv_flow_spec_xxx           
+ * struct ibv_flow_spec_yyy           
+ */           
+    };
+    
+    And can be followed by the optional flow headers structs:
+    struct ibv_flow_spec_ib
+    struct ibv_flow_spec_eth
+    struct ibv_flow_spec_ipv4
+    struct ibv_flow_spec_tcp_udp
+    
+    ib_flow_attr pointer includes ibv_flow_attr and headers structs, which can be
+    detected by reading the size and num_of_specs fields in ib_flow_attr struct.
+    
+    The user can choose flow type according to the following enum:
+    enum ibv_flow_attr_type {
+/* steering according to rule specifications */           
+IBV_FLOW_ATTR_NORMAL		= 0x0,           
+/* default unicast and multicast rule -           
+ * receive all Eth traffic which isn't steered to any QP           
+ */           
+IBV_FLOW_ATTR_ALL_DEFAULT	= 0x1,           
+* default multicast rule -           
+* receive all Eth multicast traffic which isn't steered to any QP           
+*/           
+IBV_FLOW_ATTR_MC_DEFAULT	= 0x2,           
+/* sniffer rule - receive all port traffic */           
+IBV_FLOW_ATTR_MIRROR		= 0x3,           
+    };
+    
+    When setting flow type to NORMAL, the incoming traffic will be steer
+    according to the rule specifications. ALL_DEFAULT and MC_DEFAULT rules options
+    are valid only for Ethernet link type since IB link type packets always include
+    QP number.
+    
+    To detach the flow from the QP, ibv_destroy_flow is called.
+    ibv_destroy_flow requires struct ibv_flow which contains a uobject handle.
+    
+
+Hadar Hen Zion <hadarh@mellanox.com>	2013-03-05
+
+    Add general definitions to support verbs extensions
+    
+    To support verbs extension mechanism between user space libraries and
+    uverbs kernel module, each new added verb which is based on verbs extension
+    approach should include the following:
+    1. Enum index greater than IB_USER_VERBS_CMD_THRESHOLD.
+    2. Additional common fields in the kernel-user struct:
+__u16 provider_in_words;           
+__u16 provider_out_words;           
+__u32 cmd_hdr_reserved;           
+__u32 comp_mask;           
+    
+       The above fields will be initialized by
+       IBV_INIT_CMD_EX/IBV_INIT_CMD_RESP_EX new macros.
+    
+    Added uverbs_cmd_type to recognize if command should be processed as a legacy or as an extended.
+    Added new header support macros.
+    
+
+Hadar Hen Zion <hadarh@mellanox.com>	2013-02-11
+
+    Revert "Implement ibv_attach_flow and ibv_detach_flow."
+    
+    This reverts commit fbcdd10fdb19c2957208772a555f937f423a7bb6.
+    
+
+Hadar Hen Zion <hadarh@mellanox.com>	2013-02-11
+
+    Revert "Pad ibv_attach_flow struct to avoid alignment problems"
+    
+    This reverts commit a93bb4980321b53921e08266247f9287540df0c2.
+    
+
+Hadar Hen Zion <hadarh@mellanox.com>	2013-02-11
+
+    Revert "Expose rule_type field in ibv_flow_spec struct"
+    
+    This reverts commit d15371a7500944bb0e2e700c1748a31172623e24.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-02-03
+
+    shared_mr: example program adapted to use new verbs extension API
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2013-01-31
+
+    shared_mr support on top on verbs extenstion
+    
+    Adds shared_mr API based on new verbs extension mechanism.
+    This patch also includes a compatible API to previous one used in 1.8.X.
+    
+
+Marcel Apfelbaum <marcela@dev.mellanox.co.il>	2012-12-25
+
+    libibverbs: Infrastructure to support verbs extensions
+    
+    Based on a patch from Yishai Hadas <yishaih@mellanox.com>
+    
+    Infrastructure to support extended verbs capabilities in a forward/backward
+    manner.
+    
+    Support for extensions is determined by the provider calling
+    verbs_register_driver in place of ibv_register_driver.  When
+    extensions are enabled, ibverbs sets the current alloc_context /
+    free_context device operations to NULL.  These are used to
+    indicate that the struct ibv_device may be cast to struct
+    verbs_device.
+    
+    With extensions, ibverbs allocates the ibv_context structure
+    and calls into the provider to initialize it.  The init call
+    is part of the verbs_device struct.
+    
+
+Marcel Apfelbaum <marcela@dev.mellanox.co.il>	2012-12-25
+
+    Revert "verbs extension mechanism based on Sean first patch"
+    
+    This reverts commit 5fc421bc824d4d105e641d81ea1d7602b5ce07b5.
+    
+    To be replaced by new verbs extensions mechansim submitte to community.
+    
+
+Vladimir Sokolovsky <vlad@mellanox.com>	2013-01-07
+
+    Roll 1.1.6mlnx1 release
+    
+
+Hadar Hen Zion <hadarh@mellanox.com>	2012-11-05
+
+    Expose rule_type field in ibv_flow_spec struct
+    
+    Needed for flow steering ibdump implementation
+    
+    Issue:98828
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-10-23
+
+    shared_mr: Fix memory leak in case of an error
+    
+    Squash with 'shared mr sample program'
+    
+    Issue 94266.
+    
+    Reviewed-by: Yishai Hadas <yishaih@mellanox.com>
+
+Yishai Hadas <yishaih@mellanox.com>	2012-09-30
+
+    ibv_shared_mr - fix to work over 2GB
+    
+    move to use size_t instead of int
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-08-28
+
+    man page for ibv_shared_mr
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-07-25
+
+    man: remove the limitation of creating QP with SRQ only for UD and RC QPs
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-07-25
+
+    man: added IBV_QPT_RAW_PACKET usage
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-07-25
+
+    Revert "man: added IBV_QPT_RAW_PACKET usage"
+    
+    Squash this patch with "man: added IBV_QPT_RAW_PACKET usage"
+    
+    This reverts commit 5222e9091cf96ba7e096b5ed78a00c879563ce78.
+    
+
+Merge: fe21442 477be24
+Vladimir Sokolovsky <vlad@mellanox.com>	2012-06-27
+
+    Merge branch 'mlnx_ofed_1_8' into mlnx_ofed_2_0
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-06-27
+
+    IB/libibverbs: Expose the "request for checksum" in send flags
+    
+    Reviewed-by:   Moni Shoua  <monis@voltaire.com>
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-06-27
+
+    Keep IBV_QPT_RAW_ETH for backward compatibility
+    
+    libnes and others still use IBV_QPT_RAW_ETH
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-06-27
+
+    man: added IBV_QPT_RAW_PACKET usage
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-06-27
+
+    libibverbs: add raw ethernet QP type IBV_QPT_RAW_PACKET=7
+    
+    The patch enables usage of L2 raw ethernet QP type for user-space
+    applications.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-06-26
+
+    reg_shared_mr: adding "no rdma" mode
+    
+    Reviewed-by: Shachar Raindel <raindel@mellanox.com>
+
+Nir Muchtar <nirmu@mellanox.com>	2011-11-03
+
+    Pad ibv_attach_flow struct to avoid alignment problems
+    
+
+Nir Muchtar <nirmu@mellanox.com>	2011-10-02
+
+    Implement ibv_attach_flow and ibv_detach_flow.
+    
+    ibv_attach_flow are new verbs that allow to attach
+    a QP to the specified flow spec.
+    Flow specifications are described using ibv_flow_spec
+    structs.
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-05-08
+
+    libibverbs: clarifying the environment variable values in ibv_fork_init.3
+    
+    We got a feedback that this sentence is vague and it isn't clear enough what is
+    the expected value in the environment variables.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-05-07
+
+    shared mr sample program
+    rc_pingpong improvements for contiguous mode
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-05-07
+
+    man page update for contiguous mode and shared_mr
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-05-07
+
+    shared mr - improve fork handling
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-04-29
+
+    fix resource leaks in pingpong examples in case of a failure
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-04-25
+
+    Added the man page verbs.7
+    
+    Added the man page verbs.7 which is an introduction to libibverbs man
+    pages.
+    
+    Reviewed-by: Bart Van Assche <bvanassche@acm.org>
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-04-25
+
+    Add new InfiniBand link speeds
+    
+    Introduce support for the following extended speeds:
+    
+    FDR:    IBA extended speed 14.0625 Gbps.
+    EDR:    IBA extended speed 25.78125 Gbps.
+    
+    Reviewed-by: Hal Rosenstock <hal@mellanox.com>
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-04-09
+
+    man: fix typo in ibv_get_device_guid.3
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2012-04-24
+
+    Rename the attribute private -> private_data
+    
+    Since "private" is a reserved word in C++, it shouldn't be used as a name of a
+    structure attribute.
+    
+    Reviewed-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+
+Yishai Hadas <yishaih@mellanox.com>	2012-04-17
+
+    expose register shared mr capabilities.
+    
+    new access flag for reg_mr indicating that mr should be created shared with a given permissions.
+    - user,group,other read/write.
+    new verb named ibv_reg_shared_mr to be used for registering a new mr based on shared mr_id.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-04-17
+
+    verbs extension mechanism based on Sean first patch
+    
+    Register driver extension API to indicate that driver supports the new extension mechanism.
+    To be used by low level drivers (e.g. libmlx4)
+    Enable checking whether given driver/device instance supports the extension mechanism.
+    Mechanism to get an extension operations based on a given extension name.
+    Based on Sean patch from http://marc.info/?l=linux-rdma&m=130714769030036&w=2
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-04-15
+
+    libibverbs: rc_pingpong example using contiguous mr
+    
+    Add an option via command line indicating to use contiguous mode
+    Make relevant changes for that mode
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-04-15
+
+    libibverbs: Expose memory region allocator mode to applications
+    
+    Exposing a new capability bit indicating that system supported the new allocation mode.
+    Recognition of new mode in libibverbs and acting as below:
+    NULL expected as input address.
+    
+    The allocated address is hooked on the mr->address for further use by the application.
+    Flow change for dofork/dontfork.
+    
+
+Yishai Hadas <yishaih@mellanox.com>	2012-04-15
+
+    libibverbs: Adding allocator access flag for memory region registration
+    
+    Extend ibv_access_flags with an extra bit named IBV_ACCESS_ALLOCATE_MR
+    to ask for new allocator mode.
+    
+
+Jack Morgenstein <jackm@dev.mellanox.co.il>	2012-04-15
+
+    For RoCE, the default packet size in ud_pingpong should not exceed the I/F MTU
+    
+    Without this change, ibv_ud_pingpong under RoCE hangs unless the -s parameter
+    is explicitly provided in the command line (to be 1430 or less).
+    
+
+Roland Dreier <roland@purestorage.com>	2011-12-21
+
+    Roll libibverbs 1.1.6 release
+    
+
+Dotan Barak <dotanb@lists.openfabrics.org>	2011-11-14
+
+    Fix memory leaks in various error flows
+    
+
+Marcel Apfelbaum <marcela@dev.mellanox.co.il>	2011-10-03
+
+    Add support to ibv_devinfo for displaying extended speeds
+    
+    Add code to ibv_devinfo to display the following new speeds:
+    
+        8:  FDR-10 is a proprietary link speed which is 10.3125 Gbps with 64b/66b
+            encoding rather than 8b/10b encoding.
+        16: FDR - 14.0625 Gbps
+        32: EDR - 25.78125 Gbps
+    
+    Reviewed-by: Hal Rosenstock <hal@mellanox.com>
+
+Roland Dreier <roland@purestorage.com>	2011-11-11
+
+    Debian: Don't use brace expansion for {a,so} in libibverbs-dev.install
+    
+
+Bart Van Assche <bvanassche@acm.org>	2011-08-07
+
+    Makefile.am: Fix an automake warning
+    
+    Fix the following automake warning message:
+    
+        Makefile.am:1: `INCLUDES' is the old name for `AM_CPPFLAGS' (or `*_CPPFLAGS')
+    
+    A quote from the automake manual:
+    
+        INCLUDES
+            This does the same job as AM_CPPFLAGS (or any per-target _CPPFLAGS variable
+            if it is used). It is an older name for the same functionality. This
+            variable is deprecated; we suggest using AM_CPPFLAGS and per-target
+            _CPPFLAGS instead.
+    
+
+Bart Van Assche <bvanassche@acm.org>	2011-08-07
+
+    Add "foreign" option to AM_INIT_AUTOMAKE
+    
+    Switch to the modern form of the AM_INIT_AUTOMAKE macro and tell
+    automake that the libibverbs package does not follow the GNU
+    standards.  This change makes it possible to use 'autoreconf' for the
+    libibverbs package.
+    
+
+Or Gerlitz <ogerlitz@mellanox.com>	2011-07-19
+
+    Update examples for IBoE
+    
+    Since IBoE requires usage of GRH, update ibv_*_pinpong examples to
+    accept GIDs.  GIDs are given as an index to the local port's table and
+    are exchanged between the client and the server through the socket
+    connection.
+    
+
+Or Gerlitz <ogerlitz@mellanox.com>	2011-07-20
+
+    Add GID change event
+    
+    Add handling for GID change events, which are generated by the kernel
+    IBoE stack when the HW driver updates the GID table.
+    
+
+Or Gerlitz <ogerlitz@mellanox.com>	2011-07-19
+
+    Update kernel API header to include link_layer
+    
+    Modify the code to handle returning the link layer of a port from the
+    kernel to the library.  The kernel has done this since commit
+    2420b60b1dc4 ("IB/uverbs: Return link layer type to userspace for
+    query port operation"), merged in 2.6.37-rc1.
+    
+    The new field does not change the size of struct ibv_query_port_resp
+    as it replaces a reserved field.  Binary compatibility between the
+    kernel to the library is kept, since old kernels running below new
+    library will not zero that field, so it will be read as "unspecified,"
+    while an old library running over new kernel will ignore the value
+    returned by the kernel.
+    
+    The solution was suggested by Roland Dreier <roland@purestorage.com>
+    and Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+    
+
+Or Gerlitz <ogerlitz@mellanox.com>	2011-07-20
+
+    Add link_layer field port attribute
+    
+    The new field has three possible values: IBV_LINK_LAYER_UNSPECIFIED,
+    IBV_LINK_LAYER_INFINIBAND, IBV_LINK_LAYER_ETHERNET.  It can be used by
+    applications to know the link layer used by the port, which can be
+    either InfiniBand or Ethernet.
+    
+    The addition of the new field does not change the size of struct
+    ibv_port_attr due to alignment of the preceding fields.  Binary
+    compatibility between the library to applications is kept, since old
+    apps running over new library do not read this field, and new apps
+    running over old library will determine the link layer as unspecified
+    and hence take their IB code path.
+    
+    The solution was suggested by Roland Dreier <roland@purestorage.com>
+    and Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+    
+
+Roland Dreier <roland@purestorage.com>	2011-06-29
+
+    Update Debian Standards-Version to 3.9.2
+    
+
+Roland Dreier <roland@purestorage.com>	2011-06-29
+
+    Don't ship .la files in Debian libibverbs-dev
+    
+
+Roland Dreier <roland@purestorage.com>	2011-06-29
+
+    Package description shouldn't start with an article
+    
+
+Julien BLACHE <jblache@debian.org>	2011-06-29
+
+    debian/libibverbs1.postinst: Let debhelper code run in all cases
+    
+    Do not exit postinst if not configuring -- code added by debhelper needs
+    to run in all cases, not only the configure case.
+    
+
+Roland Dreier <roland@purestorage.com>	2011-06-28
+
+    Roll libibverbs 1.1.5 release
+    
+
+Alexander Schmidt <alexs@linux.vnet.ibm.com>	2010-08-20
+
+    Handle huge pages in ibv_fork_init() and madvise tracking
+    
+    When fork support is enabled in libibverbs, madvise() is called for
+    every memory page that is registered as a memory region.  Memory
+    ranges that are passed to madvise() must be page aligned and the size
+    must be a multiple of the page size.
+    
+    libibverbs uses sysconf(_SC_PAGESIZE) to find out the system page size
+    and rounds all ranges passed to reg_mr() according to this page size.
+    When memory from libhugetlbfs is passed to reg_mr(), this does not
+    work as the page size for this memory range might be different
+    (e.g. 16MB).  So libibverbs would have to use the huge page size to
+    calculate a page aligned range for madvise.
+    
+    As huge pages are provided to the application "under the hood" when
+    preloading libhugetlbfs, the application does not have any knowledge
+    about when it registers a huge page or a usual page.
+    
+    To work around this issue, detect the use of huge pages in libibverbs
+    and align memory ranges passed to madvise according to the huge page
+    size.  Determining the page size of a given memory range by watching
+    madvise() fail has proven to be unreliable.  So we introduce the
+    RDMAV_HUGEPAGES_SAFE environment variable to let the user decide if
+    the page size should be checked on every reg_mr() call or not. This
+    requires the user to be aware if huge pages are used by the running
+    application or not.
+    
+    I did not add an aditional API call to enable this, as applications
+    can use setenv() + ibv_fork_init() to enable checking for huge pages
+    in the code.
+    
+    
+    [ Updated ibv_fork_init() manpage for RDMAV_HUGEPAGES_SAFE.  - Roland ]
+    
+
+Roland Dreier <roland@purestorage.com>	2011-06-27
+
+    Set DM-Upload-Allowed now that Roland is a Debian Maintainer
+    
+
+Dotan Barak <dotan@dev.mellanox.co.il>	2011-06-15
+
+    Fix date format in RPM spec file changelog
+    
+
+Yann Droneaud <ydroneaud@opteya.com>	2011-05-31
+
+    read_config_file: ignore driver line without driver name
+    
+    If there's no driver name, strsep() will set config to NULL and later
+    processing of the driver name will segfault.
+    
+    Spotted with zzuf.
+    
+
+Roland Dreier <roland@purestorage.com>	2011-05-27
+
+    Fix crash if no devices and ibv_get_device_list() is called multiple times
+    
+    If no devices are found, ibverbs_init() sets num_devices to 0.  This
+    means the next call to __ibv_get_device_list() would call
+    ibverbs_init() again, which crashes because ibverbs_init() leaves
+    various internal pointers pointing to freed memory.
+    
+    Fix this by using pthread_once() to call ibverbs_init() exactly once,
+    and then doing the right thing even if num_devices stays 0.
+    
+    Tested-by: Yann Droneaud <ydroneaud@opteya.com>
+
+Tom Tucker <tom@opengridcomputing.com>	2010-07-29
+
+    Add AC_PROG_LIBTOOL to fix libtool configure warning
+    
+    Add AC_PROG_LIBTOOL to configure.in to fix an autogen.sh warning about
+    LIBTOOL configuration.
+    
+
+Jason Gunthorpe <jgunthorpe@obsidianresearch.com>	2010-10-07
+
+    Fix autotools to include the necessary m4 files
+    
+    Running autogen.sh with a new version of autotools and then building
+    on a system with an older version tends to explode.  Unfortunately
+    this is sometimes necessary since the new version is required by the
+    package.  The fix changes the autogen.sh output from:
+    
+        + aclocal -I config
+        + libtoolize --force --copy
+        libtoolize: putting auxiliary files in AC_CONFIG_AUX_DIR, `config'.
+        libtoolize: copying file `config/ltmain.sh'
+        libtoolize: Consider adding `AC_CONFIG_MACRO_DIR([m4])' to configure.in and
+        libtoolize: rerunning libtoolize, to keep the correct libtool macros in-tree.
+        libtoolize: Consider adding `-I m4' to ACLOCAL_AMFLAGS in Makefile.am.
+        + autoheader
+        + automake --foreign --add-missing --copy
+        + autoconf
+    
+    to:
+    
+        + aclocal -I config
+        + libtoolize --force --copy
+        libtoolize: putting auxiliary files in AC_CONFIG_AUX_DIR, `config'.
+        libtoolize: copying file `config/ltmain.sh'
+        libtoolize: putting macros in AC_CONFIG_MACRO_DIR, `config'.
+        libtoolize: copying file `config/libtool.m4'
+        libtoolize: copying file `config/ltoptions.m4'
+        libtoolize: copying file `config/ltsugar.m4'
+        libtoolize: copying file `config/ltversion.m4'
+        libtoolize: copying file `config/lt~obsolete.m4'
+        + autoheader
+        + automake --foreign --add-missing --copy
+        + autoconf
+    
+    And fixes various build problems in weird cases.
+    
+    This is how GNU envisions this mess works at least...
+    
+
+Roland Dreier <rolandd@cisco.com>	2010-06-03
+
+    Roll libibverbs 1.1.4 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2010-06-03
+
+    Small configure.in modernizations
+    
+
+Roland Dreier <rolandd@cisco.com>	2010-06-03
+
+    Debian: Switch to dpkg-source 3.0 format
+    
+
+Hakon Bugge <Haakon.Bugge@sun.com>	2010-06-02
+
+    Force line-buffering in ibv_asyncwatch
+    
+    ibv_asyncwatch defaults to block-buffering when stdout is redirected to
+    a file or pipe.  Changing to line-buffered mode makes it more usable in
+    scripted environments.
+    
+
+Sean Hefty <sean.hefty@intel.com>	2010-05-06
+
+    Add path record definitions to sa.h
+    
+    Add definitions for path record wire definition.  This will be used by
+    the librdmacm and ib_acm service, and is exchanged with the kernel
+    using the newer set and query route functionality.
+    
+
+Alex Vainman <alexonlists@gmail.com>	2010-03-28
+
+    Undo changes in memory range tree when madvise() fails
+    
+    ibv_madvise_range() doesn't cleanup if madvise() fails.  This patch
+    rolls back changes already made in the memory range tracking tree by
+    madvise() calls before the one that failed.  We can do this fairly
+    simply by simply restarting ibv_madvise_range() from the original
+    start to the current location with the opposite advice/inc values.
+    
+
+Alex Vainman <alexonlists@gmail.com>	2010-02-01
+
+    Fix incorrect splits/merges in the memory tree when madvise() fails.
+    
+    ibv_madvise_range() first manages (splits or merges) memory ranges in
+    the tree and only then calls madvise().  If madvise() fails, the
+    tree's memory range may contain incorrectly split or merged ranges.
+    The patch undoes the split and merge operations performed on the node
+    which caused the madvise() failure as well as on that node's
+    neighbors.
+    
+
+Alex Vainman <alexonlists@gmail.com>	2010-02-01
+
+    Increment node refcount in ibv_madvise_range() only if madvise() succeeds
+    
+    ibv_madvise_range() first updates the memory range reference count and
+    then calls to madvise().  If madvise() fails, the reference count of
+    the failed node is incorrect.  Fix this by updating the node's
+    reference count only after a successful call to madvise() (or if no
+    call to madvise() was needed).
+    
+
+Alex Vainman <alexonlists@gmail.com>	2010-02-01
+
+    Factor out range handling in ibv_madvise_range()
+    
+    Clean up some code in ibv_madvise_range() by adding functions
+    merge_ranges(), split_range() and get_start_node().
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-11-11
+
+    Update Debian build rules so -dbg package isn't empty
+    
+    Add an override_dh_strip target so that the -dbg package ends up with
+    actual debug information in it.  This was broken in the dh7 transition.
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-10-30
+
+    Use proper build dependency version in debian control file
+    
+    The debian rules use a override_dh_makeshlibs target, so (as lintian
+    points out) we need a build dependency on debhelper >= 7.0.50.
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-10-29
+
+    Roll libibverbs 1.1.3 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-10-29
+
+    Merge Fedora spec file changes
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-10-29
+
+    Rewrite GID output in ibv_devinfo to avoid type punning warnings
+    
+    Avoid casting from uint8_t* to uint16_t* and then dereferencing to avoid
+    warnings about type punning.
+    
+
+Jason Gunthorpe <jgunthorpe@obsidianresearch.com>	2009-10-28
+
+    Return errors from ibv_get_device_list() via errno
+    
+    Get rid of the output to stderr on various failure cases from
+    ibv_get_device_list() such as no device driver found, so that
+    applications can control how to present errors.  Fix up the examples
+    and the man page to match.
+    
+    Code expecting this behavior linking to old libibverbs will
+    get the old fprint and errno set to garbage (probably ESPIPE).
+    
+
+Jason Gunthorpe <jgunthorpe@obsidianresearch.com>	2009-10-29
+
+    Fix double free in find_sysfs_devs()
+    
+    Fix double free of sysfs_dev in find_sysfs_devs if ibv_read_sysfs_file()
+    fails (which is unlikely in practice).
+    
+    Jason Gunthorpe <jgunthorpe@obsidianresearch.com>
+
+Jeff Squyres <jsquyres@cisco.com>	2009-10-28
+
+    Show transport (IB vs. iWARP) type in ibv_devinfo
+    
+
+Robert Pearson <rpearson@systemfabricworks.com>	2009-09-14
+
+    Fix fall-through bug in options case in pingpong examples
+    
+    Add missing breaks for the 'm' case of options handling.
+    
+
+Jason Gunthorpe <jgunthorpe@obsidianresearch.com>	2009-07-30
+
+    Do not use enum types for bit flags
+    
+    Arithmetic operations on enum members do not result in the enum type;
+    C++ is stricter about this than C.  So using flag enums results in
+    compile errors when they are OR'd together in a C++ application.
+    
+    To fix this, replace all flag enum objects with int.  int was selected
+    to preserve the ABI; we checked that enum types are the same size as
+    int on at least i386, x86-64, ppc32, ppc64, ia64, and mips, and arm
+    and sparc also appear compatible with this choice.
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-09-02
+
+    Update Debian Standards-Version to 3.8.3
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-09-02
+
+    Change Debian build system from cdbs to debhelper 7
+    
+    With debhelper 7 we can get just as simple a rules file without all of
+    the cdbs magic.
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-08-24
+
+    Use AC_GNU_SOURCE in configure.in instead of -D_GNU_SOURCE in Makefile
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-08-24
+
+    Enable quiet build rules with automake 1.11+
+    
+    Conditionally use the new AM_SILENT_RULES macro in configure.in.
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-08-24
+
+    Revert "Update build system to use shave"
+    
+    This reverts commit 25ade84d1cd0b8b3a68872d3fc195e88cc7c4211.  Rather
+    than using shave, we'll use automake 1.11's native quiet build.
+    
+
+Jason Gunthorpe <jgunthorpe@obsidianresearch.com>	2009-07-18
+
+    Make the gid argument to ibv_attach_mcast and ibv_detach_mcast const
+    
+    ibv_attach_mcast() and ibv_detach_mcast() don't change the gid
+    argument, so the arguments should be const to allow applications to
+    pass in constant gids.  This constness flows through to the driver
+    call struct and into the drivers and back into
+    ibv_cmd_attach_mcast()/ibv_cmd_detach_mcast().
+    
+
+Jason Gunthorpe <jgunthorpe@obsidianresearch.com>	2009-07-14
+
+    Allow config file paths to the driver library to be absolute
+    
+    If the driver line starts with a / then no lib prefix is applied and
+    the full path is passed to dlopen().  This allows a completely
+    self-contained installation that relies on RPATH for the binaries and
+    this mechanism for the drivers.
+    
+
+Merge: 25ade84 11f8931
+Roland Dreier <rolandd@cisco.com>	2009-06-25
+
+    Merge branch 'stable'
+
+Roland Dreier <rolandd@cisco.com>	2009-06-25
+
+    Update Debian policy version to 3.8.2
+    
+    None of the changes 3.7.3 -> 3.8.2 affect us.
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-06-24
+
+    Move -dbg Debian package to section debug
+    
+
+Roland Dreier <rolandd@cisco.com>	2009-06-24
+
+    Update build system to use shave
+    
+    Add shave (git://git.lespiau.name/shave) to make build output of libibverbs
+    much more readable by abbreviating the outputed commands so that
+    warnings become visible, etc.
+    
+
+Dotan Barak <dotanba@gmail.com>	2008-10-18
+
+    Update Dotan's email
+    
+    Update Dotan's email in all of the files it appears.
+    
+
+Shirley Ma <mashirle@us.ibm.com>	2008-07-22
+
+    Implement PPC wmb() with sync instead of eieio
+    
+    wmb() for PPC was incorrect defined as an eieio instruction in
+    libibverbs.  eieio only orders pure I/O memory or a pure system memory
+    accesses.  In a situation where the device drivers use the d_map
+    kernel services to share a portion of system memory with an I/O
+    adapter, we need to use sync() instead. See below link for reference:
+    
+    http://www.ibm.com/developerworks/eserver/articles/powerpc.html
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-06-24
+
+    Revert conversion of ibv_devinfo to use ibv_port_state_str()
+    
+    Using ibv_port_state_str() changes the port state output of ibv_devinfo
+    (eg "PORT_DOWN" becomes "down"), which is reported to break scripts that
+    parse this output.  Revert to using the old code in ibv_devinfo; we want
+    ibv_port_state_str() to continue producing the nicer-looking lower case
+    output, so just leave the open-coded alternative in ibv_devinfo.
+    
+    Reported-by: Jack Morgenstein <jackm@dev.mellanox.co.il>
+    
+
+Dotan Barak <dotanba@gmail.com>	2008-05-23
+
+    Code formatting cleanups
+    
+    Improve readability based on warnings from kernel's checkpatch.pl.
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-04-21
+
+    Update Debian packaging to include new manpage symlinks
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-04-18
+
+    Include NMU changes for version 1.1.1-1.1 in Debian changelog
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-04-18
+
+    Change .nl macro in man pages to .sp
+    
+    There actually is no ".nl" macro defined in troff, so convert all uses
+    of it to ".sp", which seems to be what was intended.
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-04-18
+
+    Roll libibverbs 1.1.2 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-04-18
+
+    Add RPM dependency on base package to -devel package
+    
+    This fixes the rpmlint warning
+    
+        libibverbs-devel.x86_64: W: no-dependency-on libibverbs
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-04-18
+
+    Correct typo ibv_mult_to_rate -> mult_to_ibv_rate in man page
+    
+
+Ira Weiny <weiny2@llnl.gov>	2008-04-15
+
+    Add functions to convert enum values to strings
+    
+    Add ibv_xxx_str() functions to convert node type, port state, event
+    type and wc status enum values to strings.
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-04-18
+
+    Update various text to talk about general RDMA, not just InfiniBand
+    
+    libibverbs works with both iWARP and InfiniBand devices, so update
+    various places that talk about InfiniBand to be more general.
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-03-30
+
+    Fix download directory in RPM spec file
+    
+    libibverbs sources are now in downloads/verbs/, not just downloads/
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2007-10-23
+
+    Add command line parameter to set SL for pingpong examples
+    
+    Add a --sl/-l command line parameter for the pingpong examples to set
+    the SL of the QP/AH.  This can be used to test a QoS setup.
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-03-12
+
+    Add debian/watch file
+    
+
+Troy Benjegerdes <troy@scl.ameslab.gov>	2008-03-09
+
+    Fix valgrind false positive in ibv_create_comp_channel()
+    
+    Need to mark response buffer as defined after write() succeeds.
+    
+
+Or Gerlitz <ogerlitz@voltaire.com>	2007-07-25
+
+    Document IBV_SEND_INLINE buffer ownership
+    
+    If the IBV_SEND_INLINE flag is set in a work request posted with
+    ibv_post_send(), the data buffers can be reused immediately after the
+    call returns.  Document this.
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2008-02-03
+
+    Fixes for man pages
+    
+    Some fixes and updates to several man pages:
+     * Correct formatting in a few places.
+     * Add more "SEE ALSO" functions where appropriate.
+     * Document byte order of GUID and P_Key fields.
+     * Fix example code in ibv_get_cq_event.3
+     * Document GRH handling on receive.
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2007-10-10
+
+    Fix some issues in the examples
+    
+    Fix the following issues reported by valgrind in the examples:
+     * memory leaks
+     * uninitialized members of attribute structures
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2007-10-10
+
+    Fix several valgrind false positives
+    
+    Fix several issues that were reported by valgrind:
+    
+    * Initialize reserved attributes of command structures
+    
+    * Fix the pointer and size when calling VALGRIND_MAKE_MEM_DEFINED in
+      ibv_cmd_reg_mr() and ibv_cmd_create_cq_v2(): if we have struct
+      xxx_resp *resp and resp_size, we need to do
+    
+VALGRIND_MAKE_MEM_DEFINED(resp, resp_size)           
+    
+      rather than the getting the paramters wrong as in
+    
+VALGRIND_MAKE_MEM_DEFINED(&resp, sizeof resp)           
+VALGRIND_MAKE_MEM_DEFINED(resp, sizeof resp_size);           
+    
+    * Call VALGRIND_MAKE_MEM_DEFINED for buffers that are filled by
+      the kernel in ibv_cmd_query_srq(), ibv_cmd_destroy_srq() and
+      ibv_cmd_query_qp().
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-02-12
+
+    Put correct version information in Debian shlibs
+    
+    Use DEB_DH_MAKESHLIBS_ARGS_ALL to pass appropriate -V option to
+    dh_makeshlibs, since new symbols were added in version 1.1.0.
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-01-23
+
+    Convert hyphen to minus sign in ibv_query_pkey man page
+    
+    A bare "-" in a man page will be rendered as a hyphen; to get a minus
+    sign, "\-" must be used.  Very pedantic people (or automatic checkers,
+    such as Debian's lintian tool) may notice the difference.  The man page
+    for ibv_query_pkey incorrectly wrote a negative return value as "-1".
+    Fix this to be the correct "\-1".
+    
+
+Roland Dreier <rolandd@cisco.com>	2008-01-21
+
+    Use real Homepage: tag instead of pseudo-header inside description
+    
+    New dpkg can actually parse Homepage: fields in debian/control.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-12-03
+
+    Update Debian policy version to 3.7.3
+    
+    None of the changes 3.7.2 -> 3.7.3 affect us.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-11-20
+
+    Always return valid bad_wr on error from ibv_post_{send,recv,srq_recv}
+    
+    There are error cases in the kernel's uverbs work request posting
+    functions where the return value is negative (i.e., an error) and yet a
+    non-zero resp.bad_wr is not written back to userspace.  In this case,
+    ibv_cmd_post_send() should still set the bad_wr pointer.
+    
+    Bug pointed out in ibv_post_send() by Ralph Campbell
+    <ralph.campbell@qlogic.com>, and noticed elsewhere by Dotan Barak
+    <dotanb@dev.mellanox.co.il>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-10-26
+
+    Fix spec file License: tag
+    
+    Our license information is properly described as "GPLv2 or BSD".
+    
+
+swelch@systemfabricworks.com <swelch@systemfabricworks.com>	2007-08-31
+
+    Set ibv_device->node_type when allocating device
+    
+    When allocating a device structure, set the node_type member correctly.
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2007-08-08
+
+    Initialize reserved attributes in modify QP command
+    
+    Initialize the reserved attributes in modify QP command to eliminate
+    valgrind warnings like:
+    
+    ==23549== Syscall param write(buf) points to uninitialised byte(s)
+    ==23549==    at 0x316B1B933F: (within /lib64/tls/libc-2.3.4.so)
+    ==23549==    by 0x4A33AF7: ibv_cmd_modify_qp (cmd.c:782)
+    ==23549==    by 0x4F860D8: mlx4_modify_qp (verbs.c:480)
+    ==23549==    by 0x4A37A53: ibv_modify_qp@@IBVERBS_1.1 (verbs.c:441)
+    ==23549==    by 0x40972E: qp_reset_to_rtr (mr_test_fun.c:1189)
+    ==23549==    by 0x403AFC: mr_test_connect_qp (mr_test.c:232)
+    ==23549==    by 0x404956: do_test (mr_test.c:85)
+    ==23549==    by 0x402DF8: main (main.c:448)
+    ==23549==  Address 0x7FEFFF2AE is on thread 1's stack
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-07-10
+
+    Fix too-big madvise() call in ibv_madvise_range()
+    
+    When the first memory range found in ibv_madvise_range() is merged
+    with the previous range before entering the loop that calls madvise(),
+    a too-big range could be passed to madvise().  This could lead to
+    trying to madvise() memory that has already been freed and unmapped,
+    which causes madvise() and therefore ibv_reg_mr() to fail.
+    
+    Fix this by making sure we don't madvise() any memory outside the
+    range passed into ibv_madvise_range().
+    
+    This fixes <https://bugs.openfabrics.org/show_bug.cgi?id=682>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-07-03
+
+    Fix Valgrind annotations so they can actually be built
+    
+    The AC_CHECK_HEADER() test for <valgrind/memcheck.h> will never result
+    in HAVE_VALGRIND_MEMCHECK_H being defined, so ibverbs.h will never
+    include <valgrind/memcheck.h> and Valgrind annotations will never actually
+    get built.  Fix this by adding an AC_DEFINE() of HAVE_VALGRIND_MEMCHECK_H
+    if the header is found.
+    
+    Pointed out by Jeff Squyres <jsquyres@cisco.com>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-07-03
+
+    Clean up NVALGRIND comment in config.h.in
+    
+    Update configure.in so that the comment generated by autoheader for
+    NVALGRIND in config.h.in is a complete sentence to match the style of
+    the rest of the file.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-06-26
+
+    Add <stdint.h> to <infiniband/arch.h>
+    
+    <infiniband/arch.h> uses uint64_t, so it needs to include <stdint.h>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-06-21
+
+    Remove deprecated ${Source-Version} from debian/control
+    
+    Replace ${Source-Version} with the more-correct ${binary:Version}.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-06-15
+
+    Roll libibverbs 1.1.1 release
+    
+
+Merge: 1b12912 796e9fa
+Roland Dreier <rolandd@cisco.com>	2007-06-03
+
+    Merge branch 'master' into stable
+
+Jack Morgenstein <jackm@dev.mellanox.co.il>	2007-06-03
+
+    Initialize QP state to RESET
+    
+    For newly created QPs, set qp->state to IBV_QPS_RESET.  At least
+    libmlx4 needs this fix, or else it won't correctly initialize the QP's
+    send queue when transitioning to INIT.
+    
+
+Merge: 3008108 2ba2697
+Roland Dreier <rolandd@cisco.com>	2007-05-31
+
+    Merge branch 'master' into stable
+
+Michael S. Tsirkin <mst@dev.mellanox.co.il>	2007-05-30
+
+    Don't warn root if RLIMIT_MEMLOCK is low
+    
+    The amount of memory root can lock isn't limited, so the rlimit value
+    doesn't matter in this case.  Do not print a warning about
+    RLIMIT_MEMLOCK being too low if EUID is 0.
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2007-05-06
+
+    ibv_devinfo: Decode max_vl_num to actual number
+    
+    Print max_vl_num as the actual number of VLs in addition to the
+    encoded value.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-05-17
+
+    Add wc_wmb()
+    
+    Add a write-combining flush operation, wc_wmb(), which can be used by
+    low-level drivers to force ordering of write-combined stores.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-05-03
+
+    Fix call to ibv_free_device_list() in pingpong examples
+    
+    When a -d option to specify which device to use is passed to the
+    pingpong examples, they iterate through the device list by
+    incrementing the dev_list pointer.  This means that the call to
+    ibv_free_device_list() may not get the right pointer.
+    
+    Fix this by using an index to iterate through the array and leaving
+    the dev_list pointer itself alone.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-05-03
+
+    Trivial whitespace fixes in examples/
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-04-28
+
+    Update Debian build
+    
+    Use DEB_AUTO_UPDATE_LIBTOOL rather than manual rerunning autotools to
+    avoid setting RPATH.  Remove DEB_DH_STRIP_ARGS since cdbs should
+    handle this automatically at debhelper compat level 5.  Let cdbs
+    generate build-deps automatically (move control to control.in).
+    
+
+Merge: cbde955 f6f8070
+Roland Dreier <rolandd@cisco.com>	2007-04-12
+
+    Merge branches 'stable' and 'stable-1.0' into stable
+
+Roland Dreier <rolandd@cisco.com>	2007-04-11
+
+    Roll libibverbs 1.1 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-04-11
+
+    Change a few references from OpenIB to OpenFabrics
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-04-06
+
+    Fix ibv_srq_pingpong option handling
+    
+    Add missing break statement in command line option handling switch.
+    Without the break statement, setting the 'm' (mtu) command line option
+    fell through to the next case and the same value was used for the 'q'
+    (num-qp) option.
+    
+    (cherry picked from commit 09335ff6377acf90d5ed1c28a6ce69d2aa620e09)
+
+Roland Dreier <rolandd@cisco.com>	2007-04-06
+
+    Fix ibv_srq_pingpong option handling
+    
+    Add missing break statement in command line option handling switch.
+    Without the break statement, setting the 'm' (mtu) command line option
+    fell through to the next case and the same value was used for the 'q'
+    (num-qp) option.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-04-06
+
+    Add missing newline to rlimit(MEMLOCK) warning
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-04-04
+
+    Roll libibverbs 1.1-rc2 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-04-04
+
+    Clean up spec file
+    
+    Modernize spec file to better match Fedora guidelines:
+     - remove unused %ver macro
+     - fix Release to avoid '-' character
+     - switch to newer recommendation for BuildRoot
+     - add Requires(post): /sbin/ldconfig and Requires(postun): /sbin/ldconfig
+     - split static libraries into new -devel-static package
+     - don't use %makeinstall
+    
+    Based on a patch from Doug Ledford <dledford@redhat.com>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-03-29
+
+    Print warning if memlock limit is low
+    
+    Check RLIMIT_MEMLOCK, and if it is 32 KB or less, print a warning.
+    This should help with support requests for systems that set this limit
+    too low.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-03-29
+
+    Update README now that 1.1 ABI is (semi-)frozen
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-03-28
+
+    Bump version number to 1.1-rc2-pre1
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-03-27
+
+    Roll libibverbs 1.1-rc1 release
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2007-03-27
+
+    Man page updates
+    
+    - Fix spelling mistakes
+    - Convert "PKey"/"QKey" to "P_Key"/"Q_Key"
+    - Fix variable names in ibv_get_cq_event() example
+    - Add non-blocking examples for ibv_get_cq_event() and ibv_get_async_event()
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-03-27
+
+    Reference count completion channels
+    
+    Keep a reference count in completion channel structure, so that
+    ibv_destroy_comp_channel() can return EBUSY if a consumer tries to
+    destroy a channel that still has CQs attached.
+    
+    Suggested by Dotan Barak <dotanb@mellanox.co.il>.
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2007-03-19
+
+    Fix memory leak on ibv_fork_init() error path
+    
+    Free test buffer so we don't leak memory when madvise() fails.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-03-08
+
+    Add low-level driver hooks for reregister MR and memory windows
+    
+    Add methods to struct ibv_context_ops to make it possible to implement
+    reregister memory region and alloc/bind/dealloc memory window
+    operations in the future without breaking the libibverbs ABI.
+    
+    Assuming these methods and data structures are designed properly
+    (which is hard to say, absent any real implementation) then it will
+    only be necessary to add new libibverbs functions to call the hooks,
+    which will be source and binary compatible with existing applications
+    and low-level drivers.  Applications that want to use the new
+    functions can easily check for their existence at compile time.
+    
+
+Jack Morgenstein <jackm@dev.mellanox.co.il>	2007-02-22
+
+    Delete man3 symbolic links before creating them during install
+    
+    The following patch removes manpage symbolic links so that they may be
+    relinked in the install.  Otherwise a second install will fail, since
+    the links already exist.
+    
+    Suggested by Michael Tsirkin.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-02-20
+
+    Add remaining libibverbs manpages
+    
+    Add the rest of the manpages for libibverbs functions in section 3.
+    These manpages were written by Dotan Barak <dotanb@mellanox.co.il>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-02-19
+
+    Start adding libibverbs manpages
+    
+    Add the first few manpages for libibverbs functions in section 3.
+    Also, add them into the build and add rules to the Makefile to link
+    shared manpages together (since eg ibv_get_device_list and
+    ibv_free_device_list have the same manpage).  Update Debian and Fedora
+    packaging to include section 3 manpages in the development package.
+    
+    These manpages were written by Dotan Barak <dotanb@mellanox.co.il>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-31
+
+    Update Debian changelog
+    
+    Remove item about bumping soname, since it's no longer true.  Merge in
+    1.0.4-1 info from stable branch, since it's been uploaded to Debian
+    archive already.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-31
+
+    Revert "The ibv_cmd_* create functions need to set context"
+    
+    This reverts commit 5eaee85aec025be16e5aeeaac64abc6d8d9c191c.
+    
+    This breaks ibv_destroy_ah() with libmthca, and isn't really appropriate
+    for the stable branch.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-31
+
+    Fix unset context breakage when a low-level driver does kernel bypass
+    
+    Commit 8b3d2254 ("The ibv_cmd_* create functions need to set context")
+    breaks things when a low-level driver does not actually use an
+    ibv_cmd_* function to create an object, since then the context member
+    of that object never gets set.  For example, libmthca does not nee to
+    call into the kernel to create an AH, and hence ibv_destroy_ah() will
+    crash because it tries to call a function pointer from the AH's
+    context member, which never gets set.
+    
+    Fix this by adding back all the setting of context to the main verbs
+    functions like ibv_create_ah() (but still leave the setting in the
+    ibv_cmd_* create functions too).  This means context gets set twice,
+    but that doesn't really hurt anything.  Once we branch off libibverbs
+    1.1 as stable, we can change the signatures of the ibv_cmd_* destroy
+    functions to take an explicit context parameter, and get rid of
+    setting context in the ibv_cmd_* create functions.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-29
+
+    Rename Debian package back to libibverbs1
+    
+    Since commit fd448acc ("Add ABI compatibility for apps linked against
+    libibverbs 1.0") makes libibverbs 1.1 binary compatible with
+    applications linked against libibverbs 1.0 and the soname of the
+    library remains at 1, change the Debian package back to libibverbs1
+    instead of bumping it to libibverbs2.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-29
+
+    Add ABI compatibility for apps linked against libibverbs 1.0
+    
+    Add a compatibility layer that allows applications (but not low-level
+    drivers) linked against libibverbs 1.0 to work with libibverbs 1.1.
+    This is done by using Linux's versioned symbol linking support: the
+    native libibverbs entry points are given IBVERBS_1.1 versions, and
+    compatibility wrappers for entry points from libibverbs 1.0 are
+    created with an IBVERBS_1.0 version (to match what libibverbs 1.0
+    exported).
+    
+    In essense these wrappers create compatible proxies for every
+    structure returned to the application (struct ibv_device, ibv_context,
+    ibv_pd, etc), and map between the proxy and the real object when the
+    application calls into libibverbs.  This code is mostly
+    straightforward, with a few complications in handling async events,
+    because the pointers in event structures must be translated back to
+    proxy structures when they are returned to the application.
+    
+    There are a few further wrinkles because the calls to data path
+    functions (poll CQ, post send, etc) are actually inline functions that
+    call directly into the context ops, so the context ops proxy structure
+    must actually contain pointers to compatibility wrappers for these
+    functions as well.  This may have some performance impact but it seems
+    the overhead is unavoidable, and tests with NetPIPE on top of Open MPI
+    shows that the latency and throughput differences seem to be lost in
+    the noise anyway.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-29
+
+    The ibv_cmd_* create functions need to set context
+    
+    If the ibv_cmd_* create function succeeds, then the object context
+    pointer must be set by that function so that the corresponding destroy
+    function will work.  This avoids problems in the error cleanup path of
+    a low-level driver's create function that fails after calling an
+    ibv_cmd_* create function.
+    
+    (cherry picked from commit 8b3d225476c99ea29a68109a7d40e5ef353d4388)
+
+Steve Wise <swise@opengridcomputing.com>	2007-01-19
+
+    The ibv_cmd_* create functions need to set context
+    
+    If the ibv_cmd_* create function succeeds, then the object context
+    pointer must be set by that function so that the corresponding destroy
+    function will work.  This avoids problems in the error cleanup path of
+    a low-level driver's create function that fails after calling an
+    ibv_cmd_* create function.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-26
+
+    Fix caching of --version-script check
+    
+    The shell code in AC_CACHE_CHECK() should set the variable that we say
+    is being cached.  So set ac_cv_version_script when testing whether ld
+    accepts --version-script, and then set LIBIBVERBS_VERSION_SCRIPT based
+    on the (possibly cached) value of ac_cv_version_script outside of the
+    AC_CACHE_CHECK().
+    
+
+Dotan Barak <dotanb@dev.mellanox.co.il>	2007-01-17
+
+    Add resource cleanup at end of pingpong tests
+    
+    Clean up all IB resources at the end of pingpong examples.  Ack CQ
+    events when using events to all CQ to be destroyed.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-18
+
+    Fix checks of asprintf() return value
+    
+    asprintf() returns the number of bytes printed, so the way to check
+    for failure is to test if the return value is < 0.
+    
+    (cherry picked from commit 2d83a4b522b00ab36ada613920e9cf5594648934)
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2007-01-18
+
+    Fix checks of asprintf() return value
+    
+    asprintf() returns the number of bytes printed, so the way to check
+    for failure is to test if the return value is < 0.
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2007-01-17
+
+    Check asprintf() return in pingpong examples
+    
+    Handle asprintf() allocation failures in pingpong examples.
+    
+    (cherry picked from commit db39573253488a800ad3a57bf8846902c090450f)
+
+Dotan Barak <dotanb@mellanox.co.il>	2007-01-17
+
+    Check asprintf() return in pingpong examples
+    
+    Handle asprintf() allocation failures in pingpong examples.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-17
+
+    Check return of calloc() in ibv_get_device_list()
+    
+    Don't blindly copy device pointers if calloc() returns NULL.
+    
+    (cherry picked from commit 789728f7be1e6c7f22380ae739d7b692d2c08d0f)
+
+Roland Dreier <rolandd@cisco.com>	2007-01-17
+
+    Check return of calloc() in ibv_get_device_list()
+    
+    Don't blindly copy device pointers if calloc() returns NULL.
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2007-01-16
+
+    Fix some memory leaks in read_config() error path
+    
+    Don't leak path if stat() fails or file isn't a regular file.
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2007-01-16
+
+    Handle asprintf memory allocation failures
+    
+    Cherry-picked from dd3d43d89e398f23c4824d26f2698446ff2d120f.
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2007-01-16
+
+    Handle asprintf memory allocation failures
+    
+
+Steve Wise <swise@opengridcomputing.com>	2007-01-11
+
+    Don't lose devices when multiple RDMA devices are present
+    
+    When scanning through /sys/class/infiniband_verbs, link structs into
+    the list of found devices properly so that older devices aren't lost.
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-11
+
+    Don't use d_type member of struct dirent
+    
+    On some filesystems (notably reiserfs), dent->d_type is always
+    DT_UNKNOWN.  Therefore libibverbs should use stat() to check file
+    types when scanning through directories rather than relying on the
+    d_type returned from readdir().
+    
+
+Roland Dreier <rolandd@cisco.com>	2007-01-11
+
+    Revert "Pass driver data through ibv_cmd_req_notify_cq()"
+    
+    This reverts commit d5b9ab3d7009b77ee45e98827e803205d322ce7d, since
+    the Chelsio cxgb3 driver no longer needs it and the kernel side of
+    req_notify_cq() doesn't handle user data anyway.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-12-10
+
+    Implement new method for finding and loading device-specific drivers
+    
+    Export an ibv_register_driver() entry point, and expect plugins to
+    call it from __attribute__((constructor)) code.  This will allow
+    multiple drivers to be statically linked in.
+    
+    Also read config files and then use dlopen() with a relative path to
+    find drivers (rather than searching a specific lib/infiniband/
+    directory for .so files).  This allows multiple versions of a driver
+    to be installed in parallel, and also allows for optimized drivers in
+    places like /lib/i686.
+    
+    Drivers should no longer export an ibv_driver_init() function any
+    more.  Instead, they should add a function (which can be static) with
+    __attribute__((constructor)) that calls ibv_register_driver() to
+    register the driver's probe function.  Also, drivers should install a
+    file with a line "driver <driver name>" under ${sysconfdir}/libibverbs.d.
+    
+
+Steve Wise <swise@opengridcomputing.com>	2006-10-06
+
+    Pass driver data through ibv_cmd_req_notify_cq()
+    
+    The Chelsio iWARP driver library needs to pass information to the
+    kernel device-specific driver for re-arming the CQ.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-11-16
+
+    Fix rewritten test for linker script support
+    
+    Remove extra parameter to AC_SUBST left by mistake.
+    
+
+Steve Wise <swise@opengridcomputing.com>	2006-10-05
+
+    Support provider response data in reg_mr command
+    
+    Allow kernel register MR command to pass back driver-specific data to
+    the userspace driver.  The code is there to do this in the kernel, but
+    not in the libibverbs cmd interface.
+    
+
+Steve Wise <swise@opengridcomputing.com>	2006-11-16
+
+    Add async_event callback function to struct ibv_context_ops
+    
+    Add a callback function so low-level driver libraries can get a
+    callback with each async event retrieved by the user.  It allows the
+    bypass library to do WQ or CQ processing that needs to happen when a
+    fatal async event happens.  This async callback is similar to the
+    cq_event callback that already exists in libibverbs.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-11-13
+
+    Remove svn keywords
+    
+    Now that we're in git, there's no reason to have $Id in files.
+    
+    (cherry picked from d7f11c8805800d3644aa83d1d5f9f708bf9bf585 commit)
+
+Roland Dreier <rolandd@cisco.com>	2006-11-13
+
+    Remove svn keywords
+    
+    Now that we're in git, there's no reason to have $Id in files.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-11-02
+
+    Bump version number
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-31
+
+    Add final Debian changelog for libibverbs 1.0.4
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-31
+
+    Roll libibverbs 1.0.4 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-31
+
+    Fix previous sq_draining change so it actually builds
+    
+
+Jack Morgenstein <jackm@mellanox.co.il>	2006-10-31
+
+    Return sq_draining properly from query_qp
+    
+    Return the sq_draining value back to user space for query_qp instead
+    of the en_sqd_async notify value.  This last is valid only for
+    modify_qp. For query_qp (according to the IB Spec V1.2), the draining
+    status should returned.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-30
+
+    Make device finding work again
+    
+    Fix operator precedence issues in how libibverbs-1.0 adds devices to
+    its list.  Also change so that devices are reported in the same order
+    as they were in older versions.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-27
+
+    Fix static linking of libibverbs-1.0
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-17
+
+    Add rmb() and wmb() to <infiniband/arch.h>
+    
+    Update i386/x86_64 versions to use "lock; addl $0"/"lfence" instead of
+    just a compiler barrier, to guard against out-of-order speculative
+    reads.
+    
+
+Jeff Squyres <jsquyres@cisco.com>	2006-10-17
+
+    Add README notes about Valgrind memcheck support
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-17
+
+    Add handling of --with-valgrind=<valgrind dir>
+    
+    Change libibverbs/libmthca Valgrind support so that --with-valgrind
+    can take an installation directory to look in for Valgrind headers.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-08
+
+    Update ChangeLogs to give credit for Valgrind annotations
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-05
+
+    Fix up configure test for <valgrind/memcheck.h>
+    
+    Print a warning if Valgrind annotations are requested but
+    <valgrind/memcheck.h> is not found.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-04
+
+    Add Valgrind annotations
+    
+    Add basic Valgrind annotations to libibverbs and libmthca (disabled by
+    default, can be enabled by configuring with --with-valgrind).  These
+    reduce false positive warnings from the Valgrind memcheck module.
+    
+    Based on work and suggestions from Rainer Keller <keller@hlrs.de> and
+    Jeff Squyres <jsquyres@cisco.com>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-09-22
+
+    Update libibverbs man pages so they don't refer to "OpenIB"
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-09-06
+
+    Debian packaging improvements
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-07-04
+
+    Fix libibverbs definition of mb() for sparc
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-06-01
+
+    Fix ibv_get_device_list() to really NULL-terminate the array
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-06-01
+
+    Fix minor memory leaks
+    
+    The result of asprintf needs to be free when no longer needed.
+    
+
+Leonid Arsh <leonida@voltaire.com>	2006-05-31
+
+    Add IBV_EVENT_CLIENT_REREGISTER to libibverbs
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-31
+
+    Fix update to Debian policy 3.7.2
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-11-02
+
+    Rewrite test for linker script to get rid of Makefile conditionals
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-31
+
+    Fix previous sq_draining change so it actually builds
+    
+
+Jack Morgenstein <jackm@mellanox.co.il>	2006-10-31
+
+    Return sq_draining properly from query_qp
+    
+    Return the sq_draining value back to user space for query_qp instead
+    of the en_sqd_async notify value.  This last is valid only for
+    modify_qp. For query_qp (according to the IB Spec V1.2), the draining
+    status should returned.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-31
+
+    Minor cleanups
+    
+    Remove unused driver structure member, constify a few things, etc.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-17
+
+    Add rmb() and wmb() to <infiniband/arch.h>
+    
+    Update i386/x86_64 versions to use "lock; addl $0"/"lfence" instead of
+    just a compiler barrier, to guard against out-of-order speculative
+    reads.
+    
+
+Jeff Squyres <jsquyres@cisco.com>	2006-10-17
+
+    Add README notes about Valgrind memcheck support
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-17
+
+    Add handling of --with-valgrind=<valgrind dir>
+    
+    Change libibverbs Valgrind support so that --with-valgrind can take an
+    installation directory to look in for Valgrind headers.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-08
+
+    Update ChangeLogs to give credit for Valgrind annotations
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-05
+
+    Fix up configure test for <valgrind/memcheck.h>
+    
+    Print a warning if Valgrind annotations are requested but
+    <valgrind/memcheck.h> is not found.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-04
+
+    Add Valgrind annotations
+    
+    Add basic Valgrind annotations to libibverbs (disabled by default, can
+    be enabled by configuring with --with-valgrind).  These reduce false
+    positive warnings from the Valgrind memcheck module.
+    
+    Based on work and suggestions from Rainer Keller <keller@hlrs.de> and
+    Jeff Squyres <jsquyres@cisco.com>.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-10-03
+
+    Add node_type and transport_type members to struct ibv_device
+    
+    This helps apps work with both iWARP and IB devices.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-09-22
+
+    Update libibverbs man pages so they don't refer to "OpenIB"
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-09-12
+
+    Fix alignment of work request structures
+    
+    Swap next and wr_id members of struct ibv_send_wr and ibv_recv_wr to
+    allow wr_id to be naturally aligned on 32-bit architectures without
+    padding.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-09-06
+
+    Debian packaging improvements
+    
+
+Ralph Campbell <ralph.campbell@qlogic.com>	2006-08-23
+
+    Add response handling to ibv_cmd_resize_cq()
+    
+    Add resp and resp_size parameters to ibv_cmd_resize_cq() so that the
+    low-level driver in the kernel can return device-specific information
+    from the resize CQ operation.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-08-23
+
+    Fix formatting of pingpong man pages slightly
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-08-09
+
+    Simplify Debian package version
+    
+    Use ~ in Debian package version to get sort order of -pre packages
+    correct in a better way.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-08-03
+
+    Make fork() work for verbs consumers
+    
+    Add code to libibvers that uses madvise(..., MADV_DONTFORK) to make
+    fork() work for verbs consumers.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-07-04
+
+    Fix libibverbs definition of mb() for sparc
+    
+
+Sean Hefty <sean.hefty@intel.com>	2006-06-16
+
+    Add some helper functions to simplify using UD QPs
+    
+    Add new routines: ibv_init_ah_from_wc() and ibv_create_ah_from_wc() to
+    simplify UD QP communication.
+    
+    Expose ibv_copy_ah_attr_from_kern to retrieve ibv_ah_attr from kernel
+    for a UD QP.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-06-01
+
+    Fix ibv_get_device_list() to really NULL-terminate the array
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-06-01
+
+    Fix minor memory leaks
+    
+    The result of asprintf needs to be free when no longer needed.
+    
+
+Leonid Arsh <leonida@voltaire.com>	2006-05-31
+
+    Add IBV_EVENT_CLIENT_REREGISTER to libibverbs
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-31
+
+    Fix update to Debian policy 3.7.2
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-24
+
+    Branch a libibverbs-1.0 tree for maintenance
+    
+    Start 1.1 development in main libibverbs tree:
+     - Remove libsysfs use
+     - Remove deprecated symbols
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-22
+
+    Add a request for ChangeLog entries to the README
+    
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2006-05-22
+
+    Get rid of commas at end of enum lists
+    
+    While comma at end of enumerator list is legal since 1999, some tools
+    (notably gcc versions pre-4.0) seem to default to 1989 mode when
+    running with -pedantic flag, and warn about this usage.
+    
+    Since most of our enums in header files do not have comma at end, its
+    probably easier to fix the remaining two cases than educate all users
+    of libibverbs on virtues of C99.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-04
+
+    Bump version number
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-02
+
+    Update to debian policy 3.7.0
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-02
+
+    Use correct email address in Debian changelog
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-02
+
+    Roll libibverbs 1.0.3 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-05-01
+
+    Fix Debian sparc build failure
+    
+    Fix build failure with Debian sparc compiler: membar is only supported
+    under V9 ISA.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-04-12
+
+    Fix memory leak in ibv_read_sysfs_file()
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-04-11
+
+    Reduce dependency on libsysfs
+    
+    Reduce libibverbs dependency on libsysfs by using local functions for
+    internal sysfs access.  libsysfs is still required because of the ABI,
+    which passes a struct sysfs_class_device * to low-level driver init
+    functions.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-04-11
+
+    Deprecate "ib_XXX" names
+    
+    Deprecate various "ib_XXX" names (introduced as part of SA and
+    marshalling code).  Preferred versions like "ibv_XXX" are now
+    available.
+    
+
+Hoang-Nam Nguyen <HNGUYEN@de.ibm.com>	2006-04-11
+
+    Add ibv_rate_to_mult() and mult_to_ibv_rate() functions
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-04-11
+
+    Add __attribute_const macro for gcc >= 3
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-04-10
+
+    Minor Debian packaging tweaks
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-04-10
+
+    Make libsysfs dependency more robust in spec file
+    
+    Depend on %{_includedir}/sysfs/libsysfs.h instead of sysfs-devel to be
+    friendlier to building on SuSE distros.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-04-08
+
+    Revert unreviewed changes made without maintainer approval
+    
+
+Bryan O'Sullivan <bos@pathscale.com>	2006-04-06
+
+    Update spec file from 1.0 branch
+
+Roland Dreier <rolandd@cisco.com>	2006-03-28
+
+    Print a warning if dlopen() of a driver fails
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-27
+
+    Change Priority field of Debian packages to "extra"
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2006-03-23
+
+    Added a print of the event name in string format
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-22
+
+    Improve documentation of ibv_req_notify_cq()
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-17
+
+    Add include of <stdlib.h>
+    
+    This fixes warnings about implicit declaration of free().
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-17
+
+    Add some missing dependencies in Debian control files
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-16
+
+    Expand debian/copyright
+    
+    Put more detail about copyright holders and licenses in debian/copyright.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-15
+
+    Build-Depend on debhelper (>= 5)
+    
+    Debian packaging sets compat to 5, so packages also need to
+    Build-Depend on debhelper (>= 5).
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-15
+
+    Bump libibverbs version
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-15
+
+    Roll libibverbs 1.0.2 release
+    
+    Debian packaging fixes only.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-15
+
+    Debian packaging fixes based on feedback from debian-mentors mailing list
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-14
+
+    Bump version in svn, and switch to non-native Debian packaging
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-14
+
+    Roll libibverbs 1.0.1 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-14
+
+    Use sysfs_open_attribute() and sysfs_read_attribute()
+    
+    Use sysfs_open_attribute() and sysfs_read_attribute() instead of the
+    deprecated function sysfs_read_attribute_value(), which is no longer
+    present in libsysfs2 (which is already in Debian and Ubuntu).
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-14
+
+    Bump libibverbs version to 1.0.1
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-03-13
+
+    Roll libibverbs 1.0 release
+    
+
+Jack Morgenstein <jackm@mellanox.co.il>	2006-03-06
+
+    Add enum ibv_rate
+    
+    Add enum ibv_rate to define encoding of static_rate field (based on a
+    patch from Jack Morgenstein <jackm@mellanox.co.il>).
+    
+
+Ralph Campbell <ralphc@pathscale.com>	2006-03-06
+
+    Fix memory leak in find_drivers()
+    
+    I was browsing through the libibverbs code and found a minor memory
+    leak.  Here is the fix.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-24
+
+    Remove copyright notices without license text
+    
+    They bugged some silly people.
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2006-02-23
+
+    Add support for kernel ABI version 6
+    
+    Add support for kernel ABI 6: take SRQ capacity from kernel response
+    to create SRQ.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-16
+
+    Bump libibverbs version
+    
+    Be optimistic and assume that the next release will be 1.0.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-16
+
+    Roll libibverbs 1.0-rc7 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-16
+
+    Add support for kernel ABI version 5
+    
+    Add support for kernel ABI 5, which properly aligns struct ibv_create_qp_resp.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-15
+
+    Add response handling to ibv_cmd_create_qp()
+    
+    Add resp and resp_size parameters to libibverbs's ibv_cmd_create_qp()
+    function so that kernel low-level drivers can return private data to
+    userspace device drivers.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-15
+
+    Bump libibverbs version number to 1.0-rc7
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-15
+
+    Roll libibverbs 1.0-rc6 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-15
+
+    Add lots more TODO information to the libibverbs README
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2006-02-14
+
+    Report board_id from ibv_devinfo, if present
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-14
+
+    Remove cpu_to_be64/be64_to_cpu
+    
+    Remove duplicated cpu_to_be64/be64_to_cpu functions in favor of
+    htonll/ntohll from <infiniband/arch.h>.
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2006-02-14
+
+    libibverbs changes for query QP and query SRQ verbs
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-01
+
+    Fix pingpong examples' handling of specifying device by name
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-02-01
+
+    Remove useless "extern" from function declarations
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-30
+
+    libibverbs changes to handle resizing CQs
+    
+    Essentially just adding API and support for passing the call through
+    to provider plug-ins.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-26
+
+    Add "extern" to declarations for consistency
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-26
+
+    Fix Source: line in spec files to point to new tarball name
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-25
+
+    Move pp_get_local_lid() to common file
+    
+    Factor out more common pingpong code.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-23
+
+    Bump libibverbs version number to 1.0-rc6
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-23
+
+    Roll libibverbs 1.0-rc5 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-23
+
+    Update TODO section in README
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2006-01-23
+
+    List all devices in ibv_devinfo
+    
+    Make ibv_devinfo list all IB devices by default, rather than the first
+    device only.
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-21
+
+    Factor out some common code in pingpong examples
+    
+    - Create pingpong.c/pingpong.h to hold common code for pingpong examples.
+    - Add option to set path MTU for connected transport pingpong examples.
+    
+
+Ralph Campbell <ralphc@pathscale.com>	2006-01-17
+
+    Arm CQ early enough in pingpong examples
+    
+    The example pingpong programs have a race when using events where the
+    client sends the first packet but the server hasn't yet armed the CQ
+    by calling ibv_req_notify_cq() thus waiting forever in
+    ibv_get_cq_event().  The fix is to move the call to
+    ibv_req_notify_cq() before signaling the client to "start".
+    
+
+Roland Dreier <rolandd@cisco.com>	2006-01-07
+
+    Fix ibv_srq_pingpong bug with many QPs when using CQ events
+    
+    Fix SRQ example to avoid problems with many QPs and events.  Based on
+    a patch from Dotan Barak (who also found the problem).
+    
+
+Ralph Campbell <ralphc@pathscale.com>	2006-01-07
+
+    Fix test of return value of ibv_poll_cq() in pingpong examples
+    
+
+Dotan Barak <dotanb@mellanox.co.il>	2006-01-04
+
+    Typo fix in the description of ibv_modify_srq()
+    
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2006-01-04
+
+    Fix ibverbs_init for multiple adapters
+    
+    Noted by Christoph Raisch.
+    
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2005-12-16
+
+    struct ibv_send_wr.imm_data is in network byte order
+    
+    verbs.h documents ordering for immediate data in completion, but not
+    in send work request.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-12-15
+
+    Improve ibv_free_device_list() documentation
+    
+
+Shirley Ma <xma@us.ibm.com>	2005-12-15
+
+    Handle devices that don't support SRQ
+    
+    create_srq is not a mandatory device function, therefore in
+    userspace/libibverbs/src/verbs.c ibv_create_srq should check
+    create_srq() first before calling it, otherwise the caller will cause
+    the segmentation fault on device which doesn't support SRQs.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-12-14
+
+    Change from ibv_get_devices() to ibv_get_device_list()
+    
+    Change libibverbs API for listing all known devices from
+    ibv_get_devices() to ibv_get_device_list(), and update all in-tree
+    uses of this API.
+    
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2005-11-29
+
+    Fix EXTRA_DIST: sa-kern-abi.h path is wrong
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-11-13
+
+    Various trivial picayune libibverbs changes
+    
+
+Sean Hefty <sean.hefty@intel.com>	2005-11-11
+
+    Add support for userspace RDMA connection management abstraction (CMA)
+    
+    Add common user/kernel data structures and copy routines in libibverbs.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-11-09
+
+    Add changelog entry for previous checkin
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2005-11-09
+
+    Make ibv_get_devices reentrant
+    
+
+Jack Morgenstein <jackm@mellanox.co.il>	2005-11-09
+
+    Handle kernel uverbs ABI version 4
+    
+    Update libibverbs and libmthca to handle new kernel ABI 4, which has
+    the kernel compute exact capabilities for QPs.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-30
+
+    Fix CQ overrun in SRQ pingpong example
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-30
+
+    Bump debian package version to -rc5 as well
+
+Roland Dreier <rolandd@cisco.com>	2005-10-26
+
+    Bump libibverbs version number to 1.0-rc5
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-26
+
+    Really roll releases
+    
+    Fix version in spec file changelog.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-26
+
+    Roll libibverbs 1.0-rc4 release
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-25
+
+    Fix QP attr masks in ibv_uc_pingpong
+    
+    Fix QP attribute masks used in ibv_uc_pingpong -- now that mthca
+    correctly fails if we try to set RDMA/atomic capabilities for UC QPs,
+    the examples need to be fixed as well.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-25
+
+    Handle out-of-order completions in pingpong examples
+    
+    Keep track of whether send and/or receive is pending in libibverbs
+    pingpong examples.  This avoids failures when the remote side receives
+    data and posts a send very quickly, and the local side completes the
+    receive before the previous send.  With the old code, this could
+    result in posting a send before the previous send completed, and
+    therefore overrun the send queue.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-25
+
+    Fix "Source:" line in RPM spec files to be a valid URL
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-23
+
+    Fix buffer size computation in ibv_cmd_get_context_v2()
+    
+    Correct silly mistake in ibv_cmd_get_context_v2() computation of size
+    of buffer for old ABI command: we need to use sizeof *cmd instead of
+    sizeof cmd, since cmd is a pointer.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-23
+
+    Move where we set qp->qp_type from cmd.c to verbs.c
+    
+    Just to be really anal.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-21
+
+    Check write() return value against size we tried to write
+    
+    In libibverbs post send, post recv and post SRQ recv marshalling code,
+    correct value that we check write() return value against so that we
+    check against the size we actually try to write, instead of just
+    sizeof cmd.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-19
+
+    Correct sense of solicited_only parameter to ibv_cm_req_notify_cq()
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-17
+
+    Improve comments for ibv_ack_async_event and ibv_ack_async_events
+    
+    Pointed out by Michael S. Tsirkin.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-14
+
+    Add support for new datapath kernel commands
+    
+    Add handling for calling into kernel for datapath operations, so that
+    we can handle the PathScale userspace driver.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-12
+
+    Avoid potential buffer overrun in ibv_srq_pingpong
+    
+    Fix overrun in ibv_srq_pingpong (detected by Fedora Core 4
+    "FORTIFY_SOURCE").
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-11
+
+    Remove unnecessary Debian postrm script, and simplify postinst script
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-11
+
+    Add Debian postinst/postrm scripts to add/remove "rdma" group
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-11
+
+    Be a little less verbose if verbose flag is not set
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-10-05
+
+    Bump libibverbs version
+    
+    Also finish support for modify SRQ verb.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-29
+
+    Move formatting of device's firmware version into device-specific code
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-29
+
+    Minor libibverbs packaging cleanups
+    
+    Add dist to release and require sysfsutils-devel to for -devel package.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-29
+
+    Initial attempt at Fedora Extras spec files for libibverbs and libmthca
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-26
+
+    Update libibverbs and libmthca to handle uverbs ABI version 3
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-16
+
+    Debian packaging changes suggested by debian-mentors review
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-13
+
+    Print components of firmware version in hex
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-09
+
+    Make command structure sizes the same on 32-bit and 64-bit
+    
+    Add 4-byte reserved members to the new destroy CQ, destroy QP and
+    destroy SRQ command structures so that they become a multiple of 8
+    bytes in size.  This fixes the structures so they have the same size
+    on both 32-bit and 64-bit architectures (which is required so that
+    32-bit userspace on a 64-bit kernel works correctly).
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-07
+
+    Make sure __BYTE_ORDER is defined
+    
+    Fail compilation if __BYTE_ORDER is neither __LITTLE_ENDIAN nor __BIG_ENDIAN.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-07
+
+    Include htonll() and nothll() in <infiniband/arch.h>
+    
+    Move htonll() and ntohll() from libmthca into libibverb's
+    <infiniband/arch.h>, and use them in ibv_get_device_guid() to
+    avoid pointer aliasing (which some versions of gcc miscompile).
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-09-07
+
+    Update libibverbs for stale completion event handling
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-31
+
+    Add missing half of change log entry
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-31
+
+    Add -dbg packages with debugging symbols to Debian packages
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-31
+
+    Update for new kernel ABI (stale event handling)
+    
+    Update to handle new kernel ABI for avoiding stale asynchronous
+    events.  When a CQ, QP or SRQ is destroyed, the kernel reports the
+    number of events it has given to userspace, and we wait until we've
+    handled the same number of events.
+    
+    This does introduce a library API change: consumers are now required
+    to call ibv_put_async_event() to release every asynchronous event that
+    they retrieve via ibv_get_async_event().
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-31
+
+    Add man pages for libibverbs example programs
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-30
+
+    Fix warnings on platforms where uint64_t != unsigned long long
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-30
+
+    Fix up Debian packaging
+    
+     - Add bug #s for ITP bugs
+     - Change @topspin.com addresses to @cisco.com
+     - Add Debian-specific package minor version
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-30
+
+    Merge Dotan Barak's vstat tool into ibv_devinfo
+    
+
+Pete Wyckoff <pw@osc.edu>	2005-08-26
+
+    Avoid segv when no IB devices are found
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-10
+
+    Add support for SRQs
+    
+    Add libibverbs support for SRQs, including ibv_srq_pingpong example.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-08-09
+
+    Make --rx-depth work in pingpong examples
+    
+    Fix option handling in pinpgong examples so that --rx-depth long
+    option actually works.
+    
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2005-07-25
+
+    Lazy initialization of libibverbs on ibv_get_devices
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-07-01
+
+    Add port info dump to devinfo program
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-07-01
+
+    Move ud-pingpong.c to ud_pingpong.c
+    
+    Be consistent with uc_pingpong.c and rc_pingpong.c.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-07-01
+
+    Get ready to receive before other side starts to send
+    
+    Have server side of pingpong get ready to receive before client side
+    starts sending, to close a race condition.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-06-28
+
+    Free context before closing associated file descriptors
+    
+    Free context before closing associated file descriptors.  This can
+    avoid some problems acquiring mmap_sem when there is still memory to
+    be released by the kernel.
+    
+
+Roland Dreier <rolandd@cisco.com>	2005-06-24
+
+    Always pass 0 for CQ event handler
+    
+    Always pass 0 to the kernel for CQ event handler until multiple
+    handlers are implemented and added to the API.
+    
+
+Roland Dreier <roland@topspin.com>	2005-06-24
+
+    Don't follow driver path in user's environment if we're running SUID
+    
+
+Roland Dreier <roland@topspin.com>	2005-06-23
+
+    Expand libibverbs README
+    
+
+Roland Dreier <roland@topspin.com>	2005-06-21
+
+    Update for kernel ABI changes
+    
+    Update userspace verbs libraries to match kernel ABI changes (required
+    for using "struct ib_udata *" interface).
+    
+
+Roland Dreier <roland@topspin.com>	2005-06-15
+
+    Include debian/ directory in distribution tarballs
+    
+
+Roland Dreier <roland@topspin.com>	2005-06-15
+
+    Create new ibv_uc_pinpong example
+    
+    Create new ibv_uc_pinpong example for using UC transport.  Move
+    original RC pingpong to ibv_rc_pingpong for consistency.
+    
+
+Roland Dreier <roland@topspin.com>	2005-06-06
+
+    Write up some basics in libibverbs/README
+    
+
+Roland Dreier <roland@topspin.com>	2005-06-06
+
+    Implement userspace side of query_device verb
+    
+    Implement query_device verb and add a "devinfo" example.
+    
+
+Roland Dreier <roland@topspin.com>	2005-05-31
+
+    Add generic userspace part of query GID and query P_Key verbs
+    
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2005-05-25
+
+    Fix uninitialized AH attributes in pingpong examples
+    
+    Some address handle attributes (notably static rate flow control) were
+    uninitialized. Fix this by initializing all fields to 0 using
+    designated initializers.
+    
+
+Roland Dreier <roland@topspin.com>	2005-05-14
+
+    Add userspace side of {attach,detach}_mcast verbs
+    
+
+Michael S. Tsirkin <mst@mellanox.co.il>	2005-05-09
+
+    Fix pingpong parameter parsing typos
+    
+    Fix for two obvious typos in pingpong and ud-pingpong parameter parsing
+    (found by Grant in rdma_lat code).
+    
+
+Roland Dreier <roland@topspin.com>	2005-04-29
+
+    Update error messages
+    
+    Update error messages in libibverbs init so they're easier to
+    understand, as suggested by Grant Grundler.
+
+Roland Dreier <roland@topspin.com>	2005-04-28
+
+    Set version number to 0.1.0
+    
+    Also add debian/ directories to build libibverbs.
+
+Roland Dreier <roland@topspin.com>	2005-04-28
+
+    Add documentation for ibv_poll_cq function
+
+Roland Dreier <roland@topspin.com>	2005-04-20
+
+    Add command codes for all verbs
+    
+    Add command codes for all verbs to userspace include files.  Define
+    parameter structures for query GID, query P_Key, attach multicast and
+    detach multicast commands.
+    
+
+Roland Dreier <roland@topspin.com>	2005-04-18
+
+    Load driver statically linked into executable
+    
+
+Roland Dreier <roland@topspin.com>	2005-04-07
+
+    Commit libibverbs code from roland-uverbs branch back onto trunk
+
+Roland Dreier <roland@topspin.com>	2005-01-19
+
+    Continue implementing verbs
+    
+    Add support for opening kernel uverbs file, getting context and event
+    FDs, and reading async events.
+
+Roland Dreier <roland@topspin.com>	2005-01-13
+
+    Fix library name passed to AC_INIT()
+
+Roland Dreier <roland@topspin.com>	2005-01-10
+
+    Fill in more verbs API
+    
+    Start filling in more of the verbs API.
+    
+    Implement tracking for possibly overlapping locked memory ranges.
+
+Roland Dreier <roland@topspin.com>	2004-12-29
+
+    Remove unused old Makefile.am files
+
+Roland Dreier <roland@topspin.com>	2004-12-28
+
+    Complete rename to ib_devices
+    
+    Fix Makefile.am to build the right executable.
+    
+
+Roland Dreier <roland@topspin.com>	2004-12-28
+
+    Change ib_drivers example to ib_devices
+    
+    Rename ib_drivers example program to ib_devices, which is a much more
+    sensible name.
+    

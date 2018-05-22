@@ -1,0 +1,105 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_REG_SHARED_MR 3 2014-04-09 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_reg_shared_mr \- register a shared memory region (MR)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "struct ibv_mr *ibv_exp_reg_shared_mr(struct ibv_exp_reg_shared_mr_in " *in "); "
+.fi
+.SH "DESCRIPTION"
+.fi
+.B ibv_exp_reg_shared_mr()
+registers a memory region (MR) associated with the protection domain
+.I in->pd\fR.
+.I in->mr_handle
+is the identifier of the MR that its physical memory going to be shared by this MR.
+This
+.I in->mr_handle
+is returned as part of
+.I struct ibv_mr
+and valid when original MR  was created with sharing access mode.
+The
+.I in->addr
+can be NULL and this is the common usage.If
+.I in->addr
+is not NULL, then the kernel takes it as a hint about the returned
+.I addr\fR.
+The argument
+.I in
+is an ibv_exp_reg_shared_mr_in struct, as defined in <infiniband/verbs_exp.h>.
+
+struct ibv_exp_reg_shared_mr_in {
+.in +8
+.nf
+uint32_t mr_handle;
+struct ibv_pd *pd;
+void *addr;
+uint64_t exp_access; /* use ibv_exp_access_flags from verbs_exp.h */
+uint32_t comp_mask; /* reserved for future growth (must be 0) */
+.in -8
+};
+.fi
+The struct field
+.I exp_access
+describes the desired memory protection attributes; it expects not to exceed the given permissions when the original MR was created.
+it is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_ACCESS_LOCAL_WRITE \fR  Enable Local Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_WRITE \fR Enable Remote Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_READ\fR   Enable Remote Read Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_ATOMIC\fR Enable Remote Atomic Operation Access (if supported)
+.TP
+.B IBV_EXP_ACCESS_MW_BIND\fR       Enable Memory Window Binding
+.PP
+If
+.B IBV_EXP_ACCESS_REMOTE_WRITE
+or
+.B IBV_EXP_ACCESS_REMOTE_ATOMIC
+is set, then
+.B IBV_EXP_ACCESS_LOCAL_WRITE
+must be set too.
+.PP
+Local read access is always enabled for the MR.
+.nf
+.fi
+.SH "RETURN VALUE"
+.B ibv_exp_reg_shared_mr()
+returns a pointer to the registered MR, or NULL if the request fails.
+The local key (\fBL_Key\fR) field
+.B lkey
+is used as the lkey field of struct ibv_sge when posting buffers with
+ibv_post_* verbs, and the remote key (\fBR_Key\fR)
+field
+.B rkey
+is used by remote processes to perform Atomic and RDMA operations.  The remote process places this
+.B rkey
+as the rkey field of struct ibv_send_wr passed to the ibv_post_send function.
+.SH "NOTES"
+Once
+.B ibv_exp_reg_shared_mr()
+has succeeded its memory is valid even if original MR was released by
+.B ibv_dereg_mr() \fR call.
+To release this shared MR
+.B ibv_dereg_mr()
+should be used, the returned
+.I addr
+must not free explicitly it is freed internally as part of
+.B ibv_dereg_mr()
+
+.SH "SEE ALSO"
+.BR ibv_post_send (3),
+.BR ibv_post_recv (3),
+.BR ibv_post_srq_recv (3),
+.BR ibv_reg_mr (3)
+.SH "AUTHORS"
+.TP
+Dotan Barak <dotanba@gmail.com>
+.TP
+Majd Dibbiny <majd@mellanox.com>

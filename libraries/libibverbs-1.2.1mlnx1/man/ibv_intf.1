@@ -1,0 +1,92 @@
+.TH IBV_INTF 1 "May 03, 2015" "libibverbs" "USER COMMANDS"
+
+.SH NAME
+ibv_intf \- Test application to utilize different send/receive/poll interfaces
+
+.SH SYNOPSIS
+.B ibv_intf
+[\-p port] [\-d device] [\-i ib port] [\-s size] [\-r rx depth]
+[\-n iters] [\-l sl] [\-t inline-recv] [\-S send-verbs]
+[\-R recv-verbs] [\-P poll-verbs] [\-c cpus-list] [\-b burst]
+[\-T num-threads] [\-C] [\-A]   \fBHOSTNAME\fR
+
+.B ibv_intf
+[\-p port] [\-d device] [\-i ib port] [\-s size] [\-r rx depth]
+[\-n iters] [\-l sl] [\-t inline-recv] [\-S send-verbs]
+[\-R recv-verbs] [\-P poll-verbs] [\-c cpus-list] [\-b burst]
+[\-T num-threads] [\-C] [\-A]
+
+.SH DESCRIPTION
+.PP
+Run efficient multi-threaded post\-send/recive test over InfiniBand via the reliable
+connected (RC) transport.
+Use different interfaces to send/recive messages and poll completions.
+Unless the '\-A' option is set, the application utilize the resource-domain verbs object to gain performance.
+The application allocates one resource-domain per application thread.
+.TP
+By using the '\-S', '\-R' and '\-P' options the application covers the following verbs interfaces:
+.TP
+ \-S
+ \tS_NORM         \- ibv_post_send
+ \tS_PEND         \- send_pending (member of ibv_exp_qp_burst_family)
+ \tS_PEND_INL     \- send_pending_inline (member of ibv_exp_qp_burst_family)
+ \tS_PEND_SG_LIST \- send_pending_sg_list (member of ibv_exp_qp_burst_family)
+ \tS_BURST        \- send_burst (member of ibv_exp_qp_burst_family)
+.TP
+ \-R
+ \tR_NORM         \- ibv_post_recv
+ \tR_BURST        \- recv_burst (member of ibv_exp_qp_burst_family)
+.TP
+ \-P
+ \tP_NORM         \- ibv_poll_cq
+ \tP_CNT          \- poll_cnt (member of ibv_exp_cq_family)
+ \tP_LEN          \- poll_length (member of ibv_exp_cq_family)
+
+.SH OPTIONS
+
+.PP
+.TP
+\fB\-p\fR, \fB\-\-port\fR=<port>         listen on/connect to port <port> (default 18515)
+.TP
+\fB\-d\fR, \fB\-\-ib\-dev\fR=<dev>        use IB device <dev> (default mlx4_0)
+.TP
+\fB\-i\fR, \fB\-\-ib\-port\fR=<port>      use port <port> of IB device (default 1)
+.TP
+\fB\-s\fR, \fB\-\-size\fR=<size>         size of message (default 64 max size 65,536)
+.TP
+\fB\-m\fR, \fB\-\-mtu\fR=<size>          path MTU (default 4,096)
+.TP
+\fB\-r\fR, \fB\-\-rx\-depth\fR=<dep>      receive queue size (default 2,100)
+.TP
+\fB\-n\fR, \fB\-\-iters\fR=<iters>       number of messages (default 1,000,000)
+.TP
+\fB\-l\fR, \fB\-\-sl\fR=<sl>             service level value (default 0)
+.TP
+\fB\-t\fR, \fB\-\-inline\-recv\fR=<size>  size of inline\-recv (default 0)
+.TP
+\fB\-S\fR, \fB\-\-send\-verb\fR=<verbs>   send verb interface to use S_NORM/S_PEND/S_PEND_INL/S_PEND_SG_LIST/S_BURST (default S_PEND)
+.TP
+\fB\-R\fR, \fB\-\-recv\-verb\fR=<verbs>   recv verb interface to use R_NORM/R_BURST (default R_BURST)
+.TP
+\fB\-P\fR, \fB\-\-poll\-verb\fR=<verbs>   poll verb interface to use P_NORM/P_CNT/P_LEN (default send: P_CNT recv: P_LEN)
+.TP
+\fB\-c\fR, \fB\-\-cpus\-list\fR=<list>    CPUs list to run on (default [0..5],[12..17])
+.TP
+\fB\-b\fR, \fB\-\-burst\fR=<size>        size of send/recv wr burst (default 10)
+.TP
+\fB\-T\fR, \fB\-\-num\-threads\fR=<num>   Number of threads to run (default 1)
+.TP
+\fB\-C\fR, \fB\-\-check\-data\fR          check the data received (default no\-checks)
+.TP
+\fB\-A\fR, \fB\-\-avoid\-res\-domain\fR    avoid usage of resource domain (default use res\-domain)
+
+.SH SEE ALSO
+.BR ibv_rc_pingpong (1),
+.BR ibv_uc_pingpong (1),
+.BR ibv_ud_pingpong (1),
+.BR ibv_srq_pingpong (1)
+
+.SH AUTHORS
+.TP
+Moshe Lazer
+.RI < moshel@mellanox.com >

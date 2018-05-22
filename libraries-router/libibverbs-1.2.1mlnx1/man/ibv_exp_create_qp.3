@@ -1,0 +1,132 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_CREATE_QP 3 2014-24-27 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_create_qp \- create a queue pair (QP)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "struct ibv_qp *ibv_exp_create_qp(struct ibv_context " "*context" ,
+.BI "                                struct ibv_exp_qp_init_attr " "*qp_init_attr" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_create_qp()
+creates a queue pair (QP) associated with the protection domain
+.I qp_init_attr->pd\fR.
+.fi
+The argument
+.I qp_init_attr
+is an ibv_exp_qp_init_attr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct ibv_exp_qp_init_attr {
+.in +8
+void                   *qp_context;       /* Associated context of the QP */
+struct ibv_cq          *send_cq;          /* CQ to be associated with the Send Queue (SQ) */
+struct ibv_cq          *recv_cq;          /* CQ to be associated with the Receive Queue (RQ) */
+struct ibv_srq         *srq;              /* SRQ handle if QP is to be associated with an SRQ, otherwise NULL */
+struct ibv_qp_cap       cap;              /* QP capabilities */
+enum ibv_qp_type        qp_type;          /* QP Transport Service Type (RC, UD, UC etc.) */
+int                     sq_sig_all;       /* If set, each Work Request (WR) submitted to the SQ generates a completion entry */
+uint32_t                comp_mask;        /* Identifies valid fields. Use ibv_exp_qp_init_attr_comp_mask */
+struct ibv_pd          *pd;               /* PD to be associated with the QP */
+struct ibv_xrcd        *xrcd;             /* XRC domain to be associated with the target QP */
+uint32_t                exp_create_flags; /* Creation flags for this QP. Use ibv_exp_qp_create_flags */
+uint32_t                max_inl_recv;     /* Requested size of inline-receive */
+struct ibv_exp_qpg      qpg;              /* QP group, used for RSS/TSS */
+uint32_t                max_atomic_arg;   /* Request max atomic argument size for atomic masked operations */
+uint32_t                max_inl_send_klms;/* Request Maximum number of KLMs when creating UMR whith IBV_EXP_SEND_INLINE */
+struct ibv_exp_res_domain *res_domain;    /* Provides resource domain to indicate the QP threading and message model */
+struct ibv_exp_rx_hash_conf *rx_hash_conf;/* RX hash configuration used for RSS */
+uint8_t                      port_num;    /* Port number to be associated with, applicable only to RX QP */
+                                          /* Create QP with Peer-direct sync support */
+struct ibv_exp_peer_direct_attr *peer_direct_attrs;
+uint16_t                max_tso_header;   /* Maximum TSO header size */
+.in -8
+};
+.sp
+.nf
+struct ibv_qp_cap {
+.in +8
+uint32_t                max_send_wr;    /* Requested max number of outstanding WRs in the SQ */
+uint32_t                max_recv_wr;    /* Requested max number of outstanding WRs in the RQ */
+uint32_t                max_send_sge;   /* Requested max number of scatter/gather (s/g) elements in a WR in the SQ */
+uint32_t                max_recv_sge;   /* Requested max number of s/g elements in a WR in the SQ */
+uint32_t                max_inline_data;/* Requested max number of data (bytes) that can be posted inline to the SQ, otherwise 0 */
+.in -8
+};
+.fi
+.sp
+.nf
+The attribute exp_create_flags describes the properties of the QP. It is either 0 or the bitwise OR of one or more of the following flags:
+enum ibv_exp_qp_create_flags {
+.in +8
+IBV_EXP_QP_CREATE_CROSS_CHANNEL        = (1 << 2),         /* Create Cross-Channel */
+IBV_EXP_QP_CREATE_MANAGED_SEND         = (1 << 3),         /* Create managed send queue */
+IBV_EXP_QP_CREATE_MANAGED_RECV         = (1 << 4),         /* Create managed recv queue */
+IBV_EXP_QP_CREATE_IGNORE_SQ_OVERFLOW   = (1 << 6),         /* Send queue overflow will be ignored */
+IBV_EXP_QP_CREATE_IGNORE_RQ_OVERFLOW   = (1 << 7),         /* Recv queue overflow will be ignored */
+IBV_EXP_QP_CREATE_ATOMIC_BE_REPLY      = (1 << 8),         /* Should be set to use atomics on devices that are ATOMIC_HCA_REPLY_BE */
+IBV_EXP_QP_CREATE_UMR		         = (1 << 9),         /* Create UMR */
+.in -8
+};
+.fi
+.sp
+.nf
+struct ibv_exp_rx_hash_conf {
+.in +8
+uint8_t                             rx_hash_function;    /* Use enum ibv_exp_rx_hash_function_flags */
+uint8_t                             rx_hash_key_len;     /* key length - valid only for Toeplitz */
+uint8_t                            *rx_hash_key;         /* key value - valid only for Toeplitz */
+uint64_t                            rx_hash_fields_mask; /* Use enum ibv_exp_rx_hash_fields to set which incoming packet field should participates in RX hash */
+struct ibv_exp_rwq_ind_table       *rwq_ind_tbl;         /* Receive work queue indirection table */
+.in -8
+};
+.fi
+.PP
+The function
+.B ibv_exp_create_qp()
+will update the
+.I qp_init_attr\fB\fR->cap
+struct with the actual \s-1QP\s0 values of the QP that was created;
+the values will be greater than or equal to the values requested.
+It will also update the
+.I qp_init_attr\fB\fR->max_inl_recv
+in the same way.
+.SH "RETURN VALUE"
+.B ibv_exp_create_qp()
+returns a pointer to the created QP, or NULL if the request fails.
+Check the QP number (\fBqp_num\fR) in the returned QP.
+.SH "NOTES"
+.PP
+The attributes max_recv_wr and max_recv_sge are ignored by
+.B ibv_exp_create_qp()
+if the QP is to be associated with an SRQ.
+.PP
+If the QP is RX one (i.e. ibv_exp_rx_hash_conf was set) it serves only as a steering entry:
+.nf
+1) Input CQs,SRQ must be NULL.
+.nf
+2) Input capabilities relate to send/recv must be 0.
+.nf
+3) ibv_post_send/recv is not supported on.
+.nf
+4) qp_type must support RX hash, use ibv_exp_query_device to get rx_hash_caps and evaluate.
+.SH "SEE ALSO"
+.BR ibv_alloc_pd (3),
+.BR ibv_modify_qp (3),
+.BR ibv_exp_modify_qp (3),
+.BR ibv_exp_query_qp (3),
+.BR ibv_query_qp (3)
+.BR ibv_exp_create_res_domain (3),
+.BR ibv_exp_create_rwq_ind_table (3),
+.BR ibv_exp_query_device (3),
+.BR peer_direct (7)
+.SH "AUTHORS"
+.TP
+Yishai Hadas <yishaih@mellanox.com>
+.TP
+Majd Dibbiny <majd@mellanox.com>
+.TP
+Moshe Lazer <moshel@mellanox.com>

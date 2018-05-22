@@ -1,0 +1,123 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_CREATE_MR 3 2014-08-28 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_create_mr \- create empty memory region (MR)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "struct ibv_mr *ibv_exp_create_mr(struct ibv_exp_create_mr_in "  "*in" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_create_mr()
+create empty memory region (MR) associated with the protection domain
+.I in->pd\fR.
+The MR's init attributes are 
+.I in->attr
+and the maximum KLMs we can use to fill it is
+.I in->attr.max_klm_list_size\fR.
+.PP
+The argument
+.I in
+is an ibv_exp_create_mr_in struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct  ibv_exp_create_mr_in {
+.in +8
+struct ibv_pd                    *pd;  /* protection domain (PD) associated with the MR */
+struct ibv_exp_mr_init_attr      attr;  /* Initialization attributes of the memory region (MR) */
+uint32_t                         comp_mask;  /* reserved for future growth (must be 0) */
+.in -8
+};
+.PP
+.fi
+The argument
+.I in->attr
+is an ibv_exp_mr_init_attr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct  ibv_exp_mr_init_attr {
+.in +8
+uint32_t                         max_klm_list_size; /* Maximum number of KLMs we can use to fill the MR */
+uint32_t                         create_flags; /* use ibv_exp_mr_create_flags */
+uint32_t                         exp_access_flags; /* reserved for future growth (must be 0) */
+.in -8
+};
+
+.fi
+.I in->attr.exp_access
+describes the desired memory protection attributes; it is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_ACCESS_LOCAL_WRITE \fR  Enable Local Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_WRITE \fR Enable Remote Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_READ\fR   Enable Remote Read Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_ATOMIC\fR Enable Remote Atomic Operation Access (if supported)
+.TP
+.B IBV_EXP_ACCESS_MW_BIND\fR       Enable Memory Window Binding
+.TP
+.B IBV_EXP_ACCESS_ALLOCATE_MR\fR   Request the low level driver to allocate the memory used for backing the MR. Could improve performance in some cases.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_USER_READ\fR Enable sharing this MR for reading by user (application owner).
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_USER_WRITE\fR Enable sharing this MR for writing by user.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_GROUP_READ\fR Enable sharing this MR for reading by group (application group).
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_GROUP_WRITE\fR   Enable sharing this MR for writing by group.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_OTHER_READ\fR      Enable sharing this MR for reading by other.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_OTHER_WRITE\fR    Enable sharing this MR for writing by other.
+.TP
+.B IBV_EXP_ACCESS_ON_DEMAND\fR    Create an on-demand paging MR.
+.PP
+If
+.B IBV_EXP_ACCESS_REMOTE_WRITE
+or
+.B IBV_EXP_ACCESS_REMOTE_ATOMIC
+is set, then
+.B IBV_EXP_ACCESS_LOCAL_WRITE
+must be set too.
+.PP
+Local read access is always enabled for the MR.
+.fi
+.I in->attr.create_flags
+describes the capabilities of the MR we want to create; it is one of the following flags:
+.PP
+.TP
+.B IBV_EXP_MR_INDIRECT_KLMS\fR      Enable capabilities of creating KLM using ibv_exp_post_send() 
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_create_mr()
+returns a pointer to an empty MR with lkey, or NULL if the request fails.
+The local key (\fBL_Key\fR) field
+.B lkey
+is used as the lkey field of struct ibv_sge when posting buffers with
+ibv_post_* verbs, and the remote key (\fBR_Key\fR)
+field
+.B rkey
+is used by remote processes to perform Atomic and RDMA operations.  The remote process places this
+.B rkey
+as the rkey field of struct ibv_send_wr passed to the ibv_post_send function.
+
+.SH "NOTES"
+.PP
+The user can't use this MR untill we FILL the MR using
+.I ibv_exp_post_send
+with opcode 
+.I IBV_EXP_WR_UMR_FILL
+
+.SH "SEE ALSO"
+.BR ibv_dereg_mr (3),
+.BR ibv_exp_reg_mr (3),
+.BR ibv_alloc_pd (3),
+.BR ibv_post_send (3),
+.BR ibv_post_recv (3),
+.SH "AUTHORS"
+.TP
+Haggai Abramovsky <hagaya@mellanox.com>

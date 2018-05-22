@@ -1,0 +1,33 @@
+librdmacm (1.1.0mlnx-OFED.4.0.1.6.1.40200) unstable; urgency=low
+
+  * Roll 1.1.0mlnx
+
+ -- Alaa Hleihel <alaa@mellanox.com>  Tue, 09 Aug 2016 10:28:10 +0200
+
+librdmacm (1.0.21mlnx-1) unstable; urgency=low
+
+  * rsockets: Delay initializing buffers until the inline size is known
+  * Remove prints to stderr
+
+ -- Alaa Hleihel <alaa@mellanox.com>  Tue, 09 Jun 2015 10:28:10 +0200
+
+librdmacm (1.0.20mlnx-1) unstable; urgency=low
+
+  * Improved experimental interface
+  * rping: change imm_data to ex.invalidate_rkey
+  * Updated rdmacm for changes in libibverbs interface
+  * Updated rdmacm for the new libibverbs experimental interface
+  * Removed ts struct and use direct field timestamp
+  * Fixed compilation issue due to shifting bind_mw struct in ib_send_wr
+  * Added MW support
+  * timestamping: ucmatose and udaddy should print connectionid when printing timestamping messages
+  * cmatose: added support for timestamping
+  * udaddy: added support for timestamping
+
+ -- Vladimir Sokolovsky <vlad@mellanox.com>  Tue, 22 Apr 2014 13:38:10 +0200
+
+librdmacm (1.0.17mlnx2-1) unstable; urgency=low
+
+  * New Mellanox release.
+
+ -- Vladimir Sokolovsky <vlad@mellanox.com>  Mon, 7 Jan 2013 13:38:10 +0200

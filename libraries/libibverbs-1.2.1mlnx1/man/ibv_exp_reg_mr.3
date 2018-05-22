@@ -1,0 +1,200 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_REG_MR 3 2014-04-27 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_reg_mr \- registers a memory region (MR)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "struct ibv_mr *ibv_exp_reg_mr(struct ibv_exp_reg_mr_in "  "*in" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_reg_mr()
+registers a memory region (MR) associated with the protection domain
+.I in->pd\fR.
+The MR's starting address is
+.I in->addr
+and its size is
+.I in->length\fR.
+
+.PP
+The argument
+.I in
+is an ibv_exp_reg_mr_in struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct  ibv_exp_reg_mr_in {
+.in +8
+struct ibv_pd                    *pd;        /* Protection domain (PD) associated with the MR */
+void                             *addr;      /* MR's starting address */
+size_t                           length;     /* MR's length */
+uint64_t                         exp_access; /* Use ibv_exp_access_flags */
+uint32_t                         comp_mask;  /* use ibv_exp_reg_mr_in_comp_mask */
+uint32_t                         create_flags /* use ibv_exp_reg_mr_create_flags */ 
+.in -8
+};
+
+.fi
+.I in->exp_access
+describes the desired memory protection attributes; it is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_ACCESS_LOCAL_WRITE \fR  Enable Local Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_WRITE \fR Enable Remote Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_READ\fR   Enable Remote Read Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_ATOMIC\fR Enable Remote Atomic Operation Access (if supported)
+.TP
+.B IBV_EXP_ACCESS_MW_BIND\fR       Enable Memory Window Binding
+.TP
+.B IBV_EXP_ACCESS_ALLOCATE_MR\fR   Request the low level driver to allocate the memory used for backing the MR. Could improve performance in some cases.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_USER_READ\fR Enable sharing this MR for reading by user (application owner).
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_USER_WRITE\fR Enable sharing this MR for writing by user.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_GROUP_READ\fR Enable sharing this MR for reading by group (application group).
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_GROUP_WRITE\fR   Enable sharing this MR for writing by group.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_OTHER_READ\fR      Enable sharing this MR for reading by other.
+.TP
+.B IBV_EXP_ACCESS_SHARED_MR_OTHER_WRITE\fR    Enable sharing this MR for writing by other.
+.TP
+.B IBV_EXP_ACCESS_NO_RDMA\fR   Disable RDMA on shared MR. 
+.TP
+.B IBV_EXP_ACCESS_ON_DEMAND\fR    Create an on-demand paging MR.
+.TP
+.B IBV_EXP_ACCESS_RELAXED\fR      Create an on-demand paging Relaxed MR.
+.TP
+.B IBV_EXP_ACCESS_PHYSICAL_ADDR\fR      Create a MR supporitng physical addresses.
+.TP
+.B IBV_EXP_ACCESS_RESERVED\fR    Library's internal variable - used for validity checks.
+.PP
+If
+.B IBV_EXP_ACCESS_REMOTE_WRITE
+or
+.B IBV_EXP_ACCESS_REMOTE_ATOMIC
+is set, then
+.B IBV_EXP_ACCESS_LOCAL_WRITE
+must be set too.
+.PP
+If
+.B IBV_EXP_ACCESS_ALLOCATE_MR
+is used,
+.I in->addr
+must be NULL, and
+.B ibv_exp_reg_mr()
+will allocate a memory block automatically, which its address will be page aligned.
+This block will be freed implicitly when
+.B ibv_dereg_mr()
+is called.
+.PP
+If one of
+.B IBV_EXP_ACCESS_SHARED_XXX
+flags is used
+.I in->addr
+and
+.I in->length
+must be page aligned. Additionally, the pages composing the MR must not be Anonymous/LRU ones. If
+.B IBV_EXP_ACCESS_ALLOCATE_MR
+is set this behavior is guaranteed.
+.PP
+If
+.B IBV_EXP_ACCESS_RELAXED
+is set, then
+.B IBV_EXP_ACCESS_ON_DEMAND
+must be set too and
+.I in->length
+shouldn't exceed 128MB. Using this access flag allows the memory registration to take a
+more relaxed approach with the resulting MR. The resulting MR may cover a
+larger memory region than requested, may allow more operations than the access
+flags that were passed to it and it's rkey may remain valid even after
+ibv_dereg_mr is called. It's used to fasten the ODP MR registration method for
+remote access.
+.PP
+if
+.B IBV_EXP_ACCESS_PHYSICAL_ADDR
+is set, then
+.I in->length
+should be set to zero and
+.I in->addr
+must be NULL. Physical address MR will allow to use physical addresses in WQEs instead of virtual addresses.
+.B IBV_EXP_ACCESS_PHYSICAL_ADDR
+can be combined only with
+.B IBV_EXP_ACCESS_LOCAL_WRITE,
+.B IBV_EXP_ACCESS_REMOTE_WRITE,
+.B IBV_EXP_ACCESS_REMOTE_READ
+or
+.B IBV_EXP_ACCESS_REMOTE_ATOMIC.
+.PP
+Local read access is always enabled for the MR.
+
+.fi
+.I in->create_flags
+describes the desired memory create flags; it is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.B IBV_EXP_REG_MR_CREATE_CONTIG\fR Request the driver to allocate the memory, with the address passed in
+.B in->addr 
+  
+.I in->comp_mask
+describes which fields after comp_mask are present and valid; it is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.B IBV_EXP_REG_MR_CREATE_FLAGS \fR  the field
+.B in->create_flags
+is present and the driver should use it.
+
+.SH "RETURN VALUE"
+.B ibv_exp_reg_mr()
+returns a pointer to the registered MR, or NULL if the request fails.
+The local key (\fBL_Key\fR) field
+.B lkey
+is used as the lkey field of struct ibv_sge when posting buffers with
+ibv_post_* verbs, and the remote key (\fBR_Key\fR)
+field
+.B rkey
+is used by remote processes to perform Atomic and RDMA operations.  The remote process places this
+.B rkey
+as the rkey field of struct ibv_send_wr passed to the ibv_post_send function.
+If
+.B IBV_EXP_ACCESS_ALLOCATE_MR\fR is used, the field
+.B in->addr\fR will hold the address to the allocated memory block.
+
+if 
+.B IBV_REG_MR_CREATE_CONTIG\fR is used,
+.B IBV_EXP_ACCESS_ALLOCATE_MR
+must not be used. If the user passes null in
+.B in->addr
+, the driver will try to allocate an arbitrary address and register it. If the user passes a specific address; that is not null; the driver will try to allocate the passed address and register it.
+
+.SH "NOTES"
+.PP
+The user can register an Implicit ODP MR, which provides him an implicit lkey
+that represents their complete address space. Implicit ODP MR is limited to
+local access permissions (local read or write). It only has a valid lkey, it's
+rkey is invalid. There's a limit on the size of operations that can use this
+lkey and it is 128MB.
+
+In order to register an Implicit ODP MR, in addition to the
+IBV_EXP_ACCESS_ON_DEMAND access flag, use
+.B in->addr = 0
+and
+.B in->length = IBV_EXP_IMPLICIT_MR_SIZE.
+
+.SH "SEE ALSO"
+.BR ibv_dereg_mr (3),
+.BR ibv_alloc_pd (3),
+.BR ibv_post_send (3),
+.BR ibv_post_recv (3),
+.BR ibv_post_srq_recv (3),
+.BR ibv_reg_shared_mr (3)
+.SH "AUTHORS"
+.TP
+Dotan Barak <dotanba@gmail.com>
+.TP
+Majd Dibbiny <majd@mellanox.com>
+.TP
+Moshe Lazer <moshel@mellanox.com>

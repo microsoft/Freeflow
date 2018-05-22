@@ -1,0 +1,51 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_QUERY_VALUES 3 2014-11-13 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_query_values \- query values
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_query_values(struct ibv_context "  "*context" ", int "  "q_values" ", struct ibv_exp_values "  "*values");
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_query_values()
+queries the values defined in the bitmask
+.I q_values
+into the appropriate fields of
+.I values.
+.PP
+The argument
+.I q_values
+is enum ibv_exp_values_comp_mask, as defined in <infiniband/verbs_exp.h>. It's bitwise OR of one or more of the following flags:
+.TP
+.B IBV_EXP_VALUES_HW_CLOCK_NS \fR  Query hardware clock in nano-seconds
+.TP
+.B IBV_EXP_VALUES_HW_CLOCK \fR  Query hardware clock in cycles
+.PP
+The argument
+.I values
+is an ibv_exp_values struct, as defined in <infiniband/verbs_exp.h>:
+.nf
+struct  ibv_exp_values {
+.in +8
+uint32_t                         comp_mask;  /* Bitmask that is used as input to indicate which of the following fields exist and as output to
+                                              indicate which values were queried. use enum ibv_exp_values_comp_mask */
+uint64_t                         hwclock_ns;  /* If requested, the queried value of hardware clock in nano-seconds */
+uint64_t                         hwclock;  /* If requested, the queried value of
+hardware clock in cycles*/
+.in -8
+};
+.fi
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_query_values()
+returns 0.
+
+.SH "NOTES"
+.PP
+.SH "SEE ALSO"
+.SH "AUTHORS"
+.TP
+Majd Dibbiny <majd@mellanox.com>

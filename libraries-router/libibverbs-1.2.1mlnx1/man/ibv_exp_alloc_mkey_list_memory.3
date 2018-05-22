@@ -1,0 +1,59 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_ALLOC_MKEY_LIST_MOMORY 3 2014-08-28 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_alloc_mkey_list_memory \- allocates a buffer for UMR when using non-inline registration
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "struct ibv_exp_mkey_list_container *ibv_exp_alloc_mkey_list_memory(struct ibv_exp_mkey_list_container_attr "  "*attr" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_alloc_mkey_list_memory()
+allocates a buffer for non-inline UMR registration associated with 
+The protection domain (PD)
+.I attr->pd\fR.
+and of type
+.I attr->mkey_list_type
+with attr
+.I attr->max_klm_list_size\fR.
+maximum number of KLMs used to create UMR
+.PP
+The argument
+.I attr
+is an ibv_exp_mkey_list_container_attr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct  ibv_exp_list_container_attr {
+.in +8
+struct ibv_pd                    *pd; /* protection domain (PD) associated with the UMR */
+uint32_t                         mkey_list_type; /* use ibv_exp_mkey_list_type */
+uint32_t                         max_klm_list_size; /* maximum number of MRs we can use to create the UMR */
+uint32_t                         comp_mask;  /* reserved for future growth (must be 0) */
+.in -8
+};
+
+.fi
+.I attr->mkey_list_type
+describes type of UMR we want to create; it is one of the following flags:
+.PP
+.TP
+.B IBV_EXP_MKEY_LIST_TYPE_INDIRECT_MR \fR  indirect UMR Type 
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_alloc_mkey_list_memory()
+returns a pointer to struct ibv_exp_mkey_list_container, or NULL if the request fails.
+
+.SH "NOTES"
+.PP
+We need this struct only if we want to Fill the UMR using non-inline post send
+.PP
+.SH "SEE ALSO"
+.BR ibv_alloc_pd (3),
+.BR ibv_exp_dealloc_mkey_list_memory (3),
+.BR ibv_post_send (3),
+.BR ibv_exp_create_mr (3)
+.SH "AUTHORS"
+.TP
+Haggai Abramovsky <hagaya@mellanox.com>

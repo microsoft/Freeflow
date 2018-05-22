@@ -1,0 +1,30 @@
+Source: librdmacm
+Priority: extra
+Maintainer: Gal Sivan <gsivan@unknown>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, libibverbs-dev (>= 1.1)
+Standards-Version: 3.9.2
+Section: libs
+Homepage: http://www.openfabrics.org/
+#Vcs-Git: git://git.debian.org/collab-maint/librdmacm.git
+#Vcs-Browser: http://git.debian.org/?p=collab-maint/librdmacm.git;a=summary
+
+Package: librdmacm-dev
+Section: libdevel
+Architecture: any
+Depends: librdmacm1 (= ${binary:Version})
+Description: Development files for the librdmacm library
+ Development files for the librdmacm library.
+
+Package: librdmacm1
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Userspace RDMA Connection Manager
+ librdmacm provides a userspace RDMA Communication Managment API.
+
+Package: librdmacm-utils
+Section: libs
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Examples for the librdmacm library
+ Example test programs for the librdmacm library.

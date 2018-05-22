@@ -1,0 +1,37 @@
+.TH IBV_SHARED_MR 1 "August 28, 2012" "libibverbs" "USER COMMANDS"
+
+.SH NAME
+ibv_shared_mr \- simple InfiniBand program which demonstrates the usage of a shared memory region
+
+.SH SYNOPSIS
+.B ibv_shared_mr
+[\-p port] [\-d device] [\-s size] [\-n no-rdma]
+\fBHOSTNAME\fR
+
+.SH DESCRIPTION
+.PP
+Run a simple shared memory region test over InfiniBand.
+Server creates a shared memory region,client gets its ID and writes some data directly to
+its memory, server verifies the data.
+Note - both client and server must run on same machine.
+
+.SH OPTIONS
+
+.PP
+.TP
+\fB\-p\fR, \fB\-\-port\fR=\fIPORT\fR
+use TCP port \fIPORT\fR for initial synchronization (default 18515)
+.TP
+\fB\-d\fR, \fB\-\-ib\-dev\fR=\fIDEVICE\fR
+use IB device \fIDEVICE\fR (default first device found)
+.TP
+\fB\-s\fR, \fB\-\-size\fR=\fISIZE\fR
+ messages of size \fISIZE\fR (default 4096)
+.TP
+\fB\-s\fR, \fB\-\-no-rdma\fR
+shared memory region is used only for shared memory purposes - no rdma. 
+.SH AUTHORS
+.TP
+Yishai Hadas
+.RI <yishaih@dev.mellanox.co.il>
+

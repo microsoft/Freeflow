@@ -1,0 +1,324 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_POST_SEND 3 2014-04-27 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_post_send \- post a list of work requests (WRs) to a send queue
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_post_send(struct ibv_qp " "*qp" ", struct ibv_exp_send_wr " "*wr" ,
+.BI "                  struct ibv_exp_send_wr " "**bad_wr" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_post_send()
+posts the linked list of work requests (WRs) starting with
+.I wr
+to the send queue of the queue pair
+.I qp\fR.
+It stops processing WRs from this list at the first failure (that can
+be detected immediately while requests are being posted), and returns
+this failing WR through
+.I bad_wr\fR.
+.PP
+The argument
+.I wr
+is an ibv_exp_send_wr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct ibv_exp_send_wr {
+.in +8
+uint64_t                wr_id;                  /* User defined WR ID */
+struct ibv_exp_send_wr *next;                   /* Pointer to next WR in list, NULL if last WR */
+struct ibv_sge         *sg_list;                /* Pointer to the s/g array */
+int                     num_sge;                /* Size of the s/g array */
+enum ibv_exp_wr_opcode  exp_opcode;             /* Operation type. Use ibv_exp_wr_opcode */
+int                     reserved;
+union {
+.in +8
+uint32_t                imm_data;               /* Immediate data (in network byte order) */
+uint32_t                invalidate_rkey;        /* The R_Key to invalidate */
+.in -8
+} ex;
+union {
+.in +8
+struct {
+.in +8
+uint64_t        remote_addr;    /* Start address of remote memory buffer */
+uint32_t        rkey;           /* Key of the remote Memory Region */
+.in -8
+} rdma;
+struct {
+.in +8
+uint64_t        remote_addr;    /* Start address of remote memory buffer */
+uint64_t        compare_add;    /* Compare operand */
+uint64_t        swap;           /* Swap operand */
+uint32_t        rkey;           /* Key of the remote Memory Region */
+.in -8
+} atomic;
+struct {
+.in +8
+struct ibv_ah  *ah;             /* Address handle (AH) for the remote node address */
+uint32_t        remote_qpn;     /* QP number of the destination QP */
+uint32_t        remote_qkey;    /* Q_Key number of the destination QP */
+.in -8
+} ud;
+.in -8
+} wr;
+union {
+.in +8
+union {
+.in +8
+struct {
+.in +8
+uint32_t      remote_srqn;     /* SRQ number of the destination SRQ */
+.in -8
+} xrc;
+.in -8
+} qp_type;
+uint32_t      xrc_remote_srq_num;		/* SRQ number of the destination SRQ */
+.in -8
+};
+union {
+.in +8
+struct {
+.in +8
+uint64_t                remote_addr;
+uint32_t                rkey;
+.in -8
+} rdma;
+struct {
+.in +8
+uint64_t                remote_addr;
+uint64_t                compare_add;
+uint64_t                swap;
+uint32_t                rkey;
+.in -8
+} atomic;
+struct {
+.in +8
+struct ibv_cq   *cq; /* Completion queue (CQ) that WAIT WR relates to */
+int32_t  cq_count;   /* Producer index (PI) of the CQ */
+.in -8
+} cqe_wait; /* Describes IBV_EXP_WR_CQE_WAIT WR */
+struct {
+.in +8
+struct ibv_qp   *qp; /* Queue pair (QP) that SEND_EN/RECV_EN WR relates to */
+int32_t  wqe_count; /* Producer index (PI) of the QP */
+.in -8
+} wqe_enable; /* Desribes IBV_EXP_WR_RECV_ENABLE and IBV_EXP_WR_SEND_ENABLE WR */
+.in -8
+} task;
+union {
+.in +8
+struct {
+.in +8
+enum ibv_exp_calc_op        calc_op;
+enum ibv_exp_calc_data_type data_type; /* Supported types of data */
+enum ibv_exp_calc_data_size data_size; /* Accept data with size */
+.in -8
+} calc;
+.in -8
+} op;
+struct {
+.in +8
+struct ibv_ah   *ah;
+uint64_t        dct_access_key;
+uint32_t        dct_number;
+.in -8
+} dc;
+union {
+.in +8
+struct {
+.in +8
+struct ibv_mw                   *mw;       /* The MW to bind */
+uint32_t                        rkey;      /* The new R_Key to assign to the MW */
+struct ibv_exp_mw_bind_info     bind_info; /* The rest of the bind information - the MR to bind to,
+                                              the requested access, the address to bind
+                                              and the length to bind */
+.in -8
+} bind_mw;
+struct {
+.in +8
+void                           *hdr;   /* Pointer address of inline header */
+uint16_t                        hdr_sz; /* Inline header size */
+uint16_t                        mss;    /* Maximum segment size for each TSO fragment */
+.in -8
+} tso;
+.in -8
+};
+uint64_t        exp_send_flags; /* use ibv_exp_send_flags */
+uint32_t        comp_mask; /* reserved for future growth (must be 0) */
+union {
+.in +8
+struct {
+.in +8
+uint32_t umr_type; /* use ibv_exp_umr_wr_type */
+struct ibv_exp_mkey_list_container *memory_objects; /* used when IBV_EXP_SEND_INLINE is not set */
+uint64_t exp_access; /* use ibv_exp_access_flags */
+struct ibv_mr *modified_mr;
+uint64_t base_addr;
+uint32_t num_mrs; /* array size of mem_repeat_block_list or mem_reg_list */
+union {
+.in +8
+struct ibv_exp_mem_region *mem_reg_list; /* array, size corresponds to num_mrs */
+struct {
+.in +8
+struct ibv_exp_mem_repeat_block *mem_repeat_block_list; /* array,  size corresponds to num_mr */
+size_t *repeat_count; /* array size corresponds to stride_dim */
+uint32_t stride_dim;
+.in -8
+} rb;
+.in -8
+} mem_list;
+.in -8
+} umr;
+struct {
+.in +8
+uint32_t        log_arg_sz;
+uint64_t        remote_addr;
+uint32_t        rkey;
+union {
+.in +8
+struct {
+.in +8
+/* For the next four fields:
+* If operand_size <= 8 then inline data is immediate
+* from the corresponding field; for small opernands,
+* ls bits are used.
+* Else the fields are pointers in the process's address space
+* where arguments are stored
+*/
+union {
+.in +8
+struct ibv_exp_cmp_swap cmp_swap;
+struct ibv_exp_fetch_add fetch_add;
+.in -8
+} op;
+.in -8
+} inline_data;       /* IBV_EXP_SEND_EXT_ATOMIC_INLINE is set */
+/* in the future add support for non-inline argument provisioning */
+.in -8
+} wr_data;
+.in -8
+} masked_atomics;
+.in -8
+} ext_op;
+.in -8
+};
+
+.sp
+.nf
+struct ibv_sge {
+.in +8
+uint64_t                addr;                   /* Start address of the local memory buffer */
+uint32_t                length;                 /* Length of the buffer */
+uint32_t                lkey;                   /* Key of the local Memory Region */
+.in -8
+};
+.sp
+.nf
+struct ibv_exp_cmp_swap {
+.in +8
+uint64_t        compare_mask;  /* which bits to compare on CMP&SWP masked atomic operation */
+uint64_t        compare_val;   /* compare value */
+uint64_t        swap_val;      /* swap value */
+uint64_t        swap_mask;     /* which bits to swap on CMP&SWP masked atomic operation */
+.in -8
+};
+.sp
+.nf
+struct ibv_exp_fetch_add {
+.in +8
+uint64_t        add_val;  /* value to add */
+uint64_t        field_boundary;  /* the boundry of the add operation on F&A masked atomic operation */
+.in -8
+};
+.fi
+.PP
+Each QP Transport Service Type supports a specific set of opcodes, as shown in the following table:
+.PP
+.nf
+OPCODE                                      | IBV_QPT_UD | IBV_QPT_UC | IBV_QPT_RC | IBV_EXP_QPT_DC_INI | IBV_QPT_XRC | IBV_QPT_RAW_PACKET |
+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-+\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\-\ 
+IBV_EXP_WR_SEND                             |     X      |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_SEND_WITH_IMM                    |     X      |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_RDMA_WRITE                       |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_RDMA_WRITE_WITH_IMM              |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_SEND_WITH_INV                    |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_LOCAL_INV                        |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_BIND_MW                          |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_RDMA_READ                        |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_ATOMIC_CMP_AND_SWP               |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_ATOMIC_FETCH_AND_ADD             |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_SEND_ENABLE                      |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_RECV_ENABLE                      |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_CQE_WAIT                         |            |     X      |     X      |         X          |      X      |                    |
+IBV_EXP_WR_EXT_MASKED_ATOMIC_CMP_AND_SWP    |            |            |     X      |         X          |      X      |                    |
+IBV_EXP_WR_EXT_MASKED_ATOMIC_FETCH_AND_ADD  |            |            |     X      |         X          |      X      |                    |
+IBV_EXP_WR_NOP                              |            |            |     X      |         X          |      X      |                    |
+IBV_EXP_WR_UMR_FILL                         |            |            |     X      |         X          |      X      |                    |
+IBV_EXP_WR_UMR_INVALIDATE                   |            |            |     X      |         X          |      X      |                    |
+IBV_EXP_WR_TSO                              |            |            |            |                    |             |         X          |
+.fi
+.PP
+The attribute exp_send_flags describes the properties of the \s-1WR\s0. It is either 0 or the bitwise \s-1OR\s0 of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_SEND_FENCE \fR Set the fence indicator.  Valid only for QPs with Transport Service Type \fBIBV_QPT_RC
+.TP
+.B IBV_EXP_SEND_SIGNALED \fR Set the completion notification indicator.  Relevant only if QP was created with sq_sig_all=0
+.TP
+.B IBV_EXP_SEND_SOLICITED \fR Set the solicited event indicator.  Valid only for Send and RDMA Write with immediate
+.TP
+.B IBV_EXP_SEND_INLINE \fR Send data in given gather list as inline data
+in a send WQE.  Valid only for Send and RDMA Write.  The L_Key will not be checked.
+.TP
+.B IBV_EXP_SEND_IP_CSUM \fR Request for checksum
+.TP
+.B IBV_EXP_SEND_WITH_CALC \fR Set to take in multiple buffers, perform a data reduction on them, and send the result.
+.TP
+.B IBV_EXP_SEND_WAIT_EN_LAST \fR Set to the last WR when using IBV_EXP_WR_CQE_WAIT.
+.TP
+.B IBV_EXP_SEND_EXT_ATOMIC_INLINE \fR Set to use extended atomic operations. Data will be inline in the send WQE.
+.SH "RETURN VALUE"
+.B ibv_exp_post_send()
+returns 0 on success, or the value of errno on failure (which indicates the failure reason).
+.SH "NOTES"
+The user should not alter or destroy AHs associated with WRs until
+request is fully executed and a work completion has been retrieved
+from the corresponding completion queue (CQ) to avoid unexpected
+behavior.
+.PP
+The buffers used by a WR can only be safely reused after WR the
+request is fully executed and a work completion has been retrieved
+from the corresponding completion queue (CQ). However, if the
+IBV_SEND_INLINE flag was set, the buffer can be reused immediately
+after the call returns.
+.PP
+When performing invalidation actions (send with invalidate or local
+invalidate), the R_Key for the invalidation is taken from the imm_data
+field.
+.PP
+When posting WR to invalidate memory window R_Key the value of ex.invalidate_rkey
+should contain the R_Key to invalidate.
+.PP
+When posting WR to send data to a remote host the value of ex.imm_data
+should contain data to send.
+.PP
+The table above, is hardware dependant. Some opcodes might be supported for
+certain QP types on one hardware, and not on another.
+
+.SH "SEE ALSO"
+.BR ibv_create_qp (3),
+.BR ibv_create_ah (3),
+.BR ibv_post_recv (3),
+.BR ibv_post_srq_recv (3),
+.BR ibv_poll_cq (3)
+.SH "AUTHORS"
+.TP
+Dotan Barak <dotanba@gmail.com>
+.TP
+Majd Dibbiny <majd@mellanox.com>
+.TP
+Haggai Abramovsky <hagaya@mellanox.com>

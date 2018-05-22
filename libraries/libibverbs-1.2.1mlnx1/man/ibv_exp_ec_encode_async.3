@@ -1,0 +1,108 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_EC_ENCODE_ASYNC 3 2015-11-28 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_ec_encode_sync, ibv_exp_ec_encode_async  \- synchronous and asynchronous erasure coding calculation
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_ec_encode_sync(struct ibv_exp_ec_calc " "*ec_calc" ,
+.BI "                           struct ibv_exp_ec_mem " "*ec_mem" );
+.sp
+.BI "int ibv_exp_ec_encode_async(struct ibv_exp_ec_calc " "*ec_calc" ,
+.BI "                            struct ibv_exp_ec_mem " "*ec_mem" ,
+.BI "                            struct ibv_exp_ec_comp " "*ec_comp" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_ec_encode_sync()
+performs synchronous erasure coding calculation on a given set of data blocks and
+places the calculation result in a given set of coding blocks. The given buffers
+and their logical block size are described in the erasure coding memory layout
+.I ec_mem\fR.
+.PP
+.nf
+struct ibv_exp_ec_mem {
+.in +8
+struct ibv_sge   *data_blocks;  /* array of data sg elements */
+int              num_data_sge;  /* number of data sg elements */
+struct ibv_sge   *code_blocks;  /* array of code sg elements */
+int              num_code_sge;  /* number of code sg elements */
+int              block_size;    /* logical block size */
+.in -8
+};
+.fi
+
+The erasure coding memory layout specifies the data set layout by
+.I data_blocks\fR array of
+.I num_data_sge\fR elements, and the code set layout by
+.I code_blocks\fR array of
+.I num_code_sge\fR elements. Both the data and code sets are assumed
+to have a single unique logical
+.I block_size\fR.
+
+.PP
+The calculation operation will block until the calculation is completed.
+.fi
+
+.B ibv_exp_ec_encode_async()
+equivalently performs non-blocking asynchronous erasure coding calculation.
+.PP
+The erasure coding calculation completes by executing the provided erasure
+coding completion handle
+.I ec_comp\fR
+.nf
+struct ibv_exp_ec_comp {
+.in +8
+void (*done)(struct ibv_exp_ec_comp *comp);  /* function handle of the EC calculation completion */
+enum ibv_exp_ec_status status;               /* status of the EC calculation */
+.in -8
+};
+.fi
+
+The caller is expected to pass a
+.I ec_comp.done\fR function pointer to execute a post-calculation user-defined logic.
+The caller is expected to check the completion status
+.I ec_comp.status\fR in order to verify the calculation succeeded or failed.
+
+.nf
+enum ibv_exp_ec_status {
+.in +8
+IBV_EXP_EC_CALC_SUCCESS,   /* EC calc operation succeded */
+IBV_EXP_EC_CALC_FAIL,      /* EC calc operation failed */
+.in -8
+};
+.fi
+
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_ec_encode_sync(),
+returns 0 on successfully completed calculation, or the value of a calculation failure.
+.PP
+.B ibv_exp_ec_encode_async(),
+returns 0 on success, or the value of errno on failure (which indicates the
+failure reason).
+.SH "CONSTRAINTS"
+.PP
+.I ec_mem.num_data_sg
+attribute must be equal to the number of data blocks init attribute
+.I K\fR.
+.PP
+.I ec_mem.num_code_sg
+init attribute must be equal to the number of code blocks init attribute
+.I M\fR.
+.PP
+.I block_size
+must be multiplier of 64 bytes.
+.PP
+.SH "SEE ALSO"
+.BR ibv_exp_ec_encode_sync (3),
+.BR ibv_exp_ec_decode_sync (3),
+.BR ibv_exp_ec_decode_async (3),
+.BR ibv_exp_ec_update_sync (3),
+.BR ibv_exp_ec_update_async (3),
+.BR ibv_exp_alloc_ec_calc (3),
+.BR ibv_exp_dealloc_ec_calc (3),
+.SH "AUTHORS"
+.TP
+Sagi Grimberg <sagig@mellanox.com>

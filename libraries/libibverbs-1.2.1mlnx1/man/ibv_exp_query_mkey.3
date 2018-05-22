@@ -1,0 +1,48 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_QUERY_MKEY 3 2014-08-28 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_query_mkey \- query MR's attribute, for MRs created by ibv_exp_create_mr() function 
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_query_mkey(struct ibv_mr "  "*mr" ", struct ibv_exp_mkey_attr " "*attr");
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_query_mkey()
+gets the attributes of the memory region (MR)
+.I mr
+into the argument
+.I attr.
+.PP
+The argument
+.I attr
+is an ibv_exp_mkey_attr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct  ibv_exp_mkey_attr {
+.in +8
+uint32_t                         max_klm_list_size; /* maximum number of MRs we can use to create the UMR */
+uint32_t                         comp_mask;  /* reserved for future growth (must be 0) */
+.in -8
+};
+.fi
+.PP
+The function
+.B ibv_exp_query_mkey()
+will update the
+.I attr
+struct with the actual \s-1mr\s0 values of the MR that were queried.
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_query_mkey()
+returns 0 on success, or the value of errno on failure.
+
+.SH "NOTES"
+.PP
+.SH "SEE ALSO"
+.BR ibv_exp_create_mr (3),
+.SH "AUTHORS"
+.TP
+Haggai Abramovsky <hagaya@mellanox.com>

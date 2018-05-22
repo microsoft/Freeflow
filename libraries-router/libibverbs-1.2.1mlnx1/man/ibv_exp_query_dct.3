@@ -1,0 +1,62 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_QUERY_DCT 3 2014-08-28 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_query_dct \- query DCT's attributes. 
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_query_dct(struct ibv_exp_dct "  "*dct" ", struct ibv_exp_dct_attr " "*attr");
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_query_dct()
+gets the attributes of
+.I dct\fR
+into the argument 
+.I attr.
+.I attr
+is an ibv_exp_dct_attr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct  ibv_exp_dct_attr {
+.in +8
+uint64_t                dc_key;          /* DC access key (64 bit key) */
+uint8_t                 port;            /* Port number */
+uint32_t                access_flags;    /* use ibv_access_flags form verbs.h */
+uint8_t                 min_rnr_timer;   /* Min rnr NAK time between successive requests of rejected messages */
+uint8_t                 tclass;          /* Traffic class used in packets sent by the DCT in case GRH is used */
+uint32_t                flow_label;      /* Flow label used in packets sent by the DCT in case GRH is used */
+enum ibv_mtu            mtu;             /* MTU of the DCT */
+uint8_t                 pkey_index;      /* PKey index */
+uint8_t                 gid_index;       /* Gid index associated with the DCT (to verify incoming packets if GRH is used) */
+uint8_t                 hop_limit;       /* Hop limit used in packets sent by the DCT in case GRH is used */
+uint32_t                key_violations;  /* DC access key violation counter */
+uint8_t                 state;           /* DCT state (IBV_EXP_DCT_STATE_ACTIVE, IBV_EXP_DCT_STATE_DRAINING, IBV_EXP_DCT_STATE_DRAINED) */
+struct ibv_srq         *srq;             /* The SRQ that will provide receive buffers */
+struct ibv_cq          *cq;              /* CQ used to report receive completions */
+struct ibv_pd          *pd;              /* PD associated with the protection domain */
+uint32_t                comp_mask;       /* reserved for future growth (must be 0) */
+.in -8
+};
+.fi
+.PP
+The function
+.B ibv_exp_query_dct()
+will update the
+.I attr
+struct with the actual \s-1dct\s0 values of the DCT that was queried.
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_query_dct()
+returns 0 on success, or the value of errno on failure.
+
+.SH "NOTES"
+.PP
+.SH "SEE ALSO"
+.BR ibv_exp_create_qp (3),
+.BR ibv_exp_create_dct (3)
+.BR ibv_exp_query_qp (3)
+.SH "AUTHORS"
+.TP
+Haggai Abramovsky <hagaya@mellanox.com>

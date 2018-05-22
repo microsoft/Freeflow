@@ -1,0 +1,46 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_GET_PROVIDER_FUNC 3 2014-04-23 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_get_provider_func \- gets provider's function pointer
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "void *ibv_exp_get_provider_func(struct ibv_context " "*context" ", enum ibv_exp_func_name " "name");
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_get_provider_func()
+returns a function's pointer of function
+.I name
+associated with device context
+.I context.
+This verb can be used to achieve direct access to provider's data path functions.
+.PP
+.sp
+.fi
+.PP
+The argument
+.I name
+is an ibv_exp_func_name enum, as defined in <infiniband/verbs_exp.h>. It should be one of the following values:
+.PP
+.nf
+.TP
+.B IBV_EXP_POST_SEND_FUNC \fR Get the exp_post_send's provider's function.
+.TP
+.B IBV_EXP_POLL_CQ_FUNC \fR   Get the exp_poll_cq's provider's function.
+.TP
+.B IBV_POST_SEND_FUNC \fR     Get the post_send's provider's function.
+.TP
+.B IBV_POLL_CQ_FUNC \fR       Get the poll_cq's provider's function.
+.TP
+.B IBV_POST_RECV_FUNC \fR     Get the post_recv's provider's function.
+
+.SH "RETURN VALUE"
+On success,
+.B ibv_exp_get_provider_func()
+returns a function's pointer, and null on error.
+.SH "AUTHORS"
+.TP
+Majd Dibbiny <majd@mellanox.com>
+

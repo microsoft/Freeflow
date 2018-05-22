@@ -1,0 +1,104 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_CREATE_CQ 3 2014-04-09 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_create_cq, ibv_destroy_cq \- create or destroy a completion queue (CQ)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "struct ibv_cq *ibv_exp_create_cq(struct ibv_context " "*context" ", int " "cqe" ,
+.BI "                             void " "*cq_context" ,
+.BI "                             struct ibv_comp_channel " "*channel" ,
+.BI "                             int " "comp_vector" ,
+.BI "                             struct ibv_exp_cq_init_attr" " *attr");
+.sp
+.BI "int ibv_destroy_cq(struct ibv_cq " "*cq" );
+.fi
+.SH "DESCRIPTION"
+.fi
+.B ibv_exp_create_cq()
+creates a completion queue (CQ) with at least
+.I cqe
+entries for the RDMA device context
+.I context\fR.
+The pointer
+.I cq_context
+will be used to set user context pointer of the CQ structure. The argument
+.I channel
+is optional; if not NULL, the completion channel
+.I channel
+will be used to return completion events.  The CQ will use the
+completion vector
+.I comp_vector
+for signaling completion events; it must be at least zero and less than
+.I context\fR->num_comp_vectors.
+
+The argument
+.I attr
+is an ibv_exp_cq_init_attr struct, as defined in <infiniband/verbs_exp.h>.
+.nf
+struct ibv_exp_cq_init_attr {
+.in +8
+.fi
+uint32_t                  comp_mask;   /* Identifies valid fields. Use enum ibv_exp_cq_init_attr_mask */ 
+.nf
+uint32_t                  flags;       /* Flags mask to create CQ with extra features */
+struct ibv_exp_res_domain *res_domain; /* Provides resource domain to indicate the CQ threading and message model */
+				       /* Create CQ with Peer-direct sync support */
+struct ibv_exp_peer_direct_attr *peer_direct_attrs;
+.in -8
+};
+
+enum ibv_exp_cq_init_attr_mask{
+.in +8
+IBV_EXP_CQ_INIT_ATTR_FLAGS              = 1 << 0, /* Set if attr->flags is valid */
+IBV_EXP_CQ_INIT_ATTR_RES_DOMAIN         = 1 << 1, /* Set if attr->res_domain is valid */
+IBV_EXP_CQ_INIT_PEER_DIRECT             = 1 << 2, /* Set if attr->peer_direct_attr is valid */
+.in -8
+};
+
+.fi
+.I attr->flags
+specifies the CQ features.  It is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_CQ_CREATE_CROSS_CHANNEL \fR Create CQ with Cross Channel
+.TP
+.B IBV_EXP_CQ_TIMESTAMP \fR Return timestamp in WC
+.TP
+.B IBV_EXP_CQ_TIMESTAMP_TO_SYS_TIME \fR Convert the timestamp in WC to system time (unsupported by mlx4)
+.TP
+.B IBV_EXP_CQ_COMPRESSED_CQE \fR Work with compressed CQEs
+
+.PP
+.B ibv_destroy_cq()
+destroys the CQ
+.I cq\fR.
+.SH "RETURN VALUE"
+.B ibv_exp_create_cq()
+returns a pointer to the CQ, or NULL if the request fails.
+.PP
+.B ibv_destroy_cq()
+returns 0 on success, or the value of errno on failure (which indicates the failure reason).
+.SH "NOTES"
+.B ibv_exp_create_cq()
+may create a CQ with size greater than or equal to the requested
+size. Check the cqe attribute in the returned CQ for the actual size.
+.PP
+.B ibv_destroy_cq()
+fails if any queue pair is still associated with this CQ.
+.SH "SEE ALSO"
+.BR ibv_resize_cq (3),
+.BR ibv_req_notify_cq (3),
+.BR ibv_ack_cq_events (3),
+.BR ibv_create_qp (3),
+.BR ibv_exp_create_res_domain (3),
+.BR peer_direct (7)
+.SH "AUTHORS"
+.TP
+Dotan Barak <dotanba@gmail.com>
+.TP
+Majd Dibbiny <majd@mellanox.com>
+.TP
+Moshe Lazer <moshel@mellanox.com>

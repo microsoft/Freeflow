@@ -1,0 +1,82 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_REREG_MR 3 2014-08-27 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_rereg_mr \- re-register a memory region (MR)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_rereg_mr(struct ibv_mr " "*mr" ", int " " flags" ,
+.BI "                     struct ibv_pd * " "pd" ", void " " *addr",
+.BI "                     size_t " " length" ", uint64_t " " access",
+.BI "                     struct ibv_exp_rereg_mr_attr *" " attr");
+.fi
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_rereg_mr()
+Modifies the attributes of an existing memory region (MR)
+.I mr\fR.
+Conceptually, this call performs the functions deregister memory region
+followed by register memory region.  Where possible,
+resources are reused instead of deallocated and reallocated.
+.PP
+.I flags\fR
+is a bit-mask used to indicate which of the following properties of the memory region are being modified. Flags should be a combination (bit field) of:
+.PP
+.TP
+.B IBV_EXP_REREG_MR_CHANGE_TRANSLATION \fR Change translation (location and length)
+.TP
+.B IBV_EXP_REREG_MR_CHANGE_PD \fR Change protection domain
+.TP
+.B IBV_EXP_REREG_MR_CHANGE_ACCESS \fR Change access flags
+.PP
+When
+.B IBV_EXP_REREG_MR_CHANGE_PD
+is used,
+.I pd\fR
+represents the new PD this MR should be registered to.
+.br
+When
+.B IBV_EXP_REREG_MR_CHANGE_TRANSLATION
+is used,
+.I addr\fR.
+represents the virtual address (user-space pointer) of the new MR, while
+.I length\fR
+represents its length.
+.PP
+The access and other flags are represented in the field
+.I access\fR.
+This field describes the desired memory protection attributes; it is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_ACCESS_LOCAL_WRITE \fR  Enable Local Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_WRITE \fR Enable Remote Write Access
+.TP
+.B IBV_EXP_ACCESS_REMOTE_READ\fR   Enable Remote Read Access
+.TP
+.B IBV_EXP_ACCESS_ALLOCATE_MR\fR Enable contiguous pages allocation
+.PP
+When
+.B IBV_ACCESS_ALLOCATE_MR
+is used, both
+.I addr
+and
+.I length
+should be NULL and 0 respectively, and the allocation is done internally.
+.PP
+.I attr\fR
+is available for future extensions.
+.SH "RETURN VALUE"
+.B ibv_exp_rereg_mr()
+returns 0 on success, or the value of errno on failure (which indicates the failure reason).
+.SH "NOTES"
+If the memory re-registration call failed, the MR can't be used.
+Even on a failure, the user still needs to call ibv_dereg_mr on this MR.
+.SH "SEE ALSO"
+.BR ibv_reg_mr (3),
+.BR ibv_dereg_mr (3),
+.SH "AUTHORS"
+.TP
+Matan Barak <matanb@mellanox.com>

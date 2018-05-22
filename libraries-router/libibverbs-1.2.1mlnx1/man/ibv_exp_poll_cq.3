@@ -1,0 +1,105 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_POLL_CQ 3 2014-04-09 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_poll_cq \- poll a completion queue (CQ)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_poll_cq(struct ibv_cq " "*ibcq" ", int " "num_entries" ,
+.BI "                struct ibv_exp_wc " "*wc" ", uint32_t "  "wc_size");
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_poll_cq()
+polls the CQ
+.I ibcq
+for work completions and returns the first
+.I num_entries
+(or all available completions if the CQ contains fewer than this number) in the array
+.I wc\fR.
+The argument
+.I wc
+is a pointer to an array of ibv_exp_wc structs, as defined in <infiniband/verbs_exp.h>.
+The argument
+.I wc_size
+is the size of each entry in the wc array.
+.PP
+.nf
+struct ibv_exp_wc {
+.in +8
+uint64_t                wr_id;          /* ID of the completed Work Request (WR) */
+enum ibv_wc_status      status;         /* Status of the operation */
+enum ibv_exp_wc_opcode  exp_opcode;     /* Operation type specified in the completed WR */
+uint32_t                vendor_err;     /* Vendor error syndrome */
+uint32_t                byte_len;       /* Number of bytes transferred */
+uint32_t                imm_data;       /* Immediate data (in network byte order) */
+uint32_t                qp_num;         /* Local QP number of completed WR */
+uint32_t                src_qp;         /* Source QP number (remote QP number) of completed WR (valid only for UD QPs) */
+int                     reserved;
+uint16_t                pkey_index;     /* P_Key index (valid only for GSI QPs) */
+uint16_t                slid;           /* Source LID */
+uint8_t                 sl;             /* Service Level */
+uint8_t                 dlid_path_bits; /* DLID path bits (not applicable for multicast messages) */
+uint64_t                timestamp;      /* Timestamp value */
+struct ibv_qp           *qp;            /* Pointer to the QP object on which the completion was received */
+struct ibv_srq          *srq;           /* Pointer to the SRQ object on which the completion was received */
+struct ibv_exp_dct      *dct;           /* Pointer to the DCT object on which the completion was received */
+uint64_t                exp_wc_flags;   /* Expiremental flags of the completed WR */
+.in -8
+};
+.sp
+.fi
+.PP
+The struct field attribute exp_wc_flags indicates which of the struct fields are valid.
+It is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_WC_GRH \fR      GRH is present (valid only for UD QPs)
+.TP
+.B IBV_EXP_WC_WITH_IMM \fR Immediate data value is valid
+.TP
+.B IBV_EXP_WC_WITH_INV \fR Immediate data value is valid and contains Rkey that was invalidated
+.TP
+.B IBV_EXP_WC_WITH_SL \fR SL field in WC is valid
+.TP
+.B IBV_EXP_WC_WITH_SLID \fR SLID field in WC is valid
+.TP
+.B IBV_EXP_WC_WITH_TIMESTAMP \fR Timestamp value in WC is valid
+.TP
+.B IBV_EXP_WC_QP \fR QP pointer in WC is valid
+.TP
+.B IBV_EXP_WC_SRQ \fR SRQ pointer in WC is valid
+.TP
+.B IBV_EXP_WC_DCT\fR DCT pointer in WC is valid
+.PP
+Not all
+.I wc
+attributes are always valid. If the completion status is other than
+.B IBV_WC_SUCCESS\fR,
+only the following attributes are valid: wr_id, status, qp_num, and vendor_err.
+.SH "RETURN VALUE"
+On success,
+.B ibv_exp_poll_cq()
+returns a non-negative value equal to the number of completions
+found.  On failure, a negative value is returned.
+.SH "NOTES"
+.PP
+Each polled completion is removed from the CQ and cannot be returned to it.
+.PP
+The user should consume work completions at a rate that prevents CQ
+overrun from occurrence.  In case of a CQ overrun, the async event
+.B IBV_EVENT_CQ_ERR
+will be triggered, and the CQ cannot be used.
+.SH "SEE ALSO"
+.BR ibv_post_send (3),
+.BR ibv_post_recv (3),
+.BR ibv_exp_get_provider_func (3)
+.SH "AUTHORS"
+.TP
+Dotan Barak <dotanba@gmail.com>
+.TP
+Moshe Lazer <moshel@mellanox.com>
+.TP
+Majd Dibbiny <majd@mellanox.com>
+

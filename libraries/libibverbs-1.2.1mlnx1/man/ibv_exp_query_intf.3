@@ -1,0 +1,293 @@
+.TH IBV_EXP_QUERY_INTF 3 2015-05-25 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_query_intf \- query for family of verbs interface for specific QP/WQ/CQ
+.PP
+ibv_exp_release_intf \- release the queried interface
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.BI "static inline void *ibv_exp_query_intf(struct ibv_context " "*context" ","
+.BI "				       struct ibv_exp_query_intf_params " "*params" ","
+.BI "				       enum ibv_exp_query_intf_status " "*status" ");"
+.BI "static inline int ibv_exp_release_intf(struct ibv_context " "*context" ", void " "*intf" ","
+.BI "				       struct ibv_exp_release_intf_params " "*params" ");"
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_query_intf()
+Provides mechanism to extend the verbs with families of verbs interfaces.
+These extensions provide a way to optimize data-path interfaces (e.g. post-send/recv, poll-cq)
+for specific kind of applications (e.g. DPDK).
+.PP
+The argument
+.I params
+is an ibv_exp_query_intf_params struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+enum ibv_exp_query_intf_flags {
+	/* Interface functions includes correctness and validity checks */
+	IBV_EXP_QUERY_INTF_FLAG_ENABLE_CHECKS	= (1 << 0),
+};
+
+enum ibv_exp_intf_family {
+	IBV_EXP_INTF_QP_BURST,
+	IBV_EXP_INTF_CQ,
+	IBV_EXP_INTF_WQ,
+	IBV_EXP_INTF_RESERVED,
+};
+
+enum ibv_exp_intf_scope {
+	IBV_EXP_INTF_GLOBAL, /* Permanent interface, identified by
+	                      * the ibv_exp_intf_family enum
+	                      */
+	IBV_EXP_INTF_EXPERIMENTAL, /* Interface under evaluation, identified by
+	                            * the ibv_exp_experimental_intf_family enum
+	                            * This interface may change between lib
+	                            * versions
+	                            */
+	IBV_EXP_INTF_VENDOR, /* Vendor specific interface, defined in vendor
+	                      * separate header file
+	                      */
+	IBV_EXP_INTF_VENDOR_EXPERIMENTAL, /* Vendor interface under evaluation,
+	                                   * defined in vendor separate header
+	                                   * file
+	                                   */
+};
+
+struct ibv_exp_query_intf_params {
+	uint32_t			flags;          /* use ibv_exp_query_intf_flags */
+	enum ibv_exp_intf_scope		intf_scope;
+	uint64_t			vendor_guid;    /* set in case VENDOR intf_scope selected */
+	uint32_t			intf;           /* for GLOBAL intf_scope use ibv_exp_intf_family enum */
+	uint32_t			intf_version;   /* Version */
+	void				*obj;           /* interface object (CQ/QP/WQ) */
+	void				*family_params; /* Family-specific params */
+	uint32_t			family_flags;   /* Family-specific flags */
+	uint32_t			comp_mask;      /* use ibv_exp_query_intf_comp_mask */
+};
+.fi
+.PP
+.B ibv_exp_release_intf()
+release the queried interface previously obtained by
+.B ibv_exp_query_intf()
+
+.SH "RETURN VALUE"
+.B ibv_exp_query_intf()
+.PP
+On failure the function returns NULL and the
+.I status
+contains the failure reason as defined by the ibv_exp_query_intf_status enum:
+.PP
+.nf
+/* Return status from ibv_exp_query_intf */
+enum ibv_exp_query_intf_status {
+	IBV_EXP_INTF_STAT_OK,
+	IBV_EXP_INTF_STAT_VENDOR_NOT_SUPPORTED, /* The provided 'vendor_guid' is not supported */
+	IBV_EXP_INTF_STAT_INTF_NOT_SUPPORTED, /* The provided 'intf' is not supported */
+	IBV_EXP_INTF_STAT_VERSION_NOT_SUPPORTED, /* The provided 'intf_version' is not supported */
+	IBV_EXP_INTF_STAT_INVAL_PARARM, /* General invalid parameter */
+	IBV_EXP_INTF_STAT_INVAL_OBJ_STATE, /* QP is not in INIT, RTR or RTS state */
+	IBV_EXP_INTF_STAT_INVAL_OBJ, /* Mismatch between the provided 'obj'(CQ/QP/WQ) and requested 'intf' */
+	IBV_EXP_INTF_STAT_FLAGS_NOT_SUPPORTED, /* The provided set of 'flags' is not supported */
+	IBV_EXP_INTF_STAT_FAMILY_FLAGS_NOT_SUPPORTED, /* The provided set of 'family_flags' is not supported */
+};
+.fi
+.PP
+On success the function returns pointer to the requested interface family.
+The familes currently supported are:
+.PP
+.B QP-burst family:
+.PP
+.nf
+/* Flags to use in family_flags field of ibv_exp_query_intf_params on family creation */
+enum ibv_exp_qp_burst_family_create_flags {
+	/* To disable loop-back of multi-cast messages in RAW-ETH */
+	IBV_EXP_QP_BURST_CREATE_DISABLE_ETH_LOOPBACK		= (1 << 0),
+	/* To enable Multi-Packet send WR when possible */
+	IBV_EXP_QP_BURST_CREATE_ENABLE_MULTI_PACKET_SEND_WR	= (1 << 1),
+};
+
+/* Flags to use on send functions of QP burst family */
+enum ibv_exp_qp_burst_family_flags {
+	IBV_EXP_QP_BURST_SIGNALED	= 1 << 0,
+	IBV_EXP_QP_BURST_SOLICITED	= 1 << 1,
+	IBV_EXP_QP_BURST_IP_CSUM	= 1 << 2,
+	IBV_EXP_QP_BURST_TUNNEL		= 1 << 3,
+	IBV_EXP_QP_BURST_FENCE		= 1 << 4,
+};
+
+struct ibv_exp_qp_burst_family {
+	/*
+	 * send_pending - Put one message in the provider send queue.
+	 *
+	 * Common usage: After calling several times to send_pending
+	 *    the application need to call send_flush to ensure the send
+	 *    of the pending messages.
+	 * Note: Use ibv_exp_qp_burst_family_flags for the flags field
+	 */
+	int (*send_pending)(struct ibv_qp *qp, uint64_t addr, uint32_t length, uint32_t lkey, uint32_t flags);
+	/*
+	 * send_pending_inline - Put one inline message in the provider send queue.
+	 *
+	 * Common usage: Same as send_pending
+	 * Notes:
+	 *  - The message length must fit the max inline size of the QP.
+	 *    Providing bigger messages may lead to data corruption and
+	 *    segmentation fault.
+	 *  - Use ibv_exp_qp_burst_family_flags for the flags field
+	 */
+	int (*send_pending_inline)(struct ibv_qp *qp, void *addr, uint32_t length, uint32_t flags);
+	/*
+	 * send_pending_sg_list - Put one scatter-gather(sg) message in the provider send queue.
+	 *
+	 * Common usage: Same as send_pending
+	 * Notes:
+	 *  - The number of sg entries must fit the max_send_sge of the QP.
+	 *    Providing bigger list of sg entries may lead to data corruption and
+	 *    segmentation fault.
+	 *  - Use ibv_exp_qp_burst_family_flags for the flags field
+	 */
+	int (*send_pending_sg_list)(struct ibv_qp *qp, struct ibv_sge *sg_list, uint32_t num, uint32_t flags);
+	/*
+	 * send_flush - To flush the pending messages.
+	 *
+	 * Note: Use ibv_exp_qp_burst_family_flags for the flags field
+	 */
+	int (*send_flush)(struct ibv_qp *qp);
+	/*
+	 * send_burst - Send a list of 'num' messages (no send_flush required in this case)
+	 */
+	int (*send_burst)(struct ibv_qp *qp, struct ibv_sge *msg_list, uint32_t num, uint32_t flags);
+	/*
+	 * recv_burst - Post a set of 'num' receive buffers.
+	 *
+	 * Note: One sge per message is supported by this function
+	 */
+	int (*recv_burst)(struct ibv_qp *qp, struct ibv_sge *msg_list, uint32_t num);
+};
+.fi
+.PP
+.B WQ family:
+.PP
+.nf
+struct ibv_exp_wq_family {
+	/*
+	 * recv_sg_list - Post one scatter-gather(sg) receive buffer.
+	 *
+	 * Note:
+	 *  - The number of sg entries must fit the max_recv_sge of the WQ.
+	 *    Providing bigger list of sg entries may lead to data corruption and
+	 *    segmentation fault.
+	 */
+	int (*recv_sg_list)(struct ibv_exp_wq *wq, struct ibv_sge *sg_list, uint32_t num_sg);
+	/*
+	 * recv_burst - Post a set of 'num' receive buffers.
+	 *
+	 * Note: One sge per message is supported by this function
+	 */
+	int (*recv_burst)(struct ibv_exp_wq *wq, struct ibv_sge *msg_list, uint32_t num);
+};
+.fi
+.PP
+.B CQ family:
+.PP
+.nf
+enum ibv_exp_cq_family_flags {
+							/* The cq_family_flags are applicable
+							 * according to the existence of the
+							 * related device capabilities flags */
+	IBV_EXP_CQ_RX_IP_CSUM_OK		= 1 << 0, /* IBV_EXP_DEVICE_RX_CSUM_IP_PKT or IBV_EXP_DEVICE_RX_CSUM_TCP_UDP_PKT */
+	IBV_EXP_CQ_RX_TCP_UDP_CSUM_OK		= 1 << 1, /* IBV_EXP_DEVICE_RX_CSUM_TCP_UDP_PKT */
+	IBV_EXP_CQ_RX_IPV4_PACKET		= 1 << 2, /* IBV_EXP_DEVICE_RX_CSUM_IP_PKT or IBV_EXP_DEVICE_RX_CSUM_TCP_UDP_PKT */
+	IBV_EXP_CQ_RX_IPV6_PACKET		= 1 << 3, /* IBV_EXP_DEVICE_RX_CSUM_IP_PKT or IBV_EXP_DEVICE_RX_CSUM_TCP_UDP_PKT */
+	IBV_EXP_CQ_RX_TUNNEL_PACKET		= 1 << 4, /* IBV_EXP_DEVICE_VXLAN_SUPPORT */
+	IBV_EXP_CQ_RX_OUTER_IP_CSUM_OK		= 1 << 5, /* IBV_EXP_DEVICE_VXLAN_SUPPORT */
+	IBV_EXP_CQ_RX_OUTER_TCP_UDP_CSUM_OK	= 1 << 6, /* IBV_EXP_DEVICE_VXLAN_SUPPORT */
+	IBV_EXP_CQ_RX_OUTER_IPV4_PACKET		= 1 << 7, /* IBV_EXP_DEVICE_VXLAN_SUPPORT */
+	IBV_EXP_CQ_RX_OUTER_IPV6_PACKET		= 1 << 8, /* IBV_EXP_DEVICE_VXLAN_SUPPORT */
+
+	/* Flags supported from CQ family version 1 */
+	/* Multi-Packet RQ flag */
+	IBV_EXP_CQ_RX_MULTI_PACKET_LAST_V1	= 1 << 9, /* Last packet on WR */
+};
+
+/* All functions of CQ family included in CQ family version 1 */
+struct ibv_exp_cq_family {
+	int32_t (*poll_cnt)(struct ibv_cq *cq, uint32_t max);
+	int32_t (*poll_length)(struct ibv_cq *cq, void *buf, uint32_t *inl);
+	int32_t (*poll_length_flags)(struct ibv_cq *cq, void *buf, uint32_t *inl, uint32_t *flags);
+};
+
+struct ibv_exp_cq_family_v1 {
+	/*
+	 * poll_cnt - Poll up to 'max' valid completions
+	 *
+	 * The function returns the number of valid completions it
+	 * managed to drain from the CQ.
+	 *
+	 * Usage example: In case a CQ is connected to one send-queue
+	 *                the application may use this function to get
+	 *                the number of the QP send-completions.
+	 *
+	 * Return value (n):
+	 *    n >= 0 : number extracted completions.
+	 *    n == -1 : operation failed. completion is not extracted.
+	 *              To extract this completion, ibv_poll_cq() must be used
+	 */
+	int32_t (*poll_cnt)(struct ibv_cq *cq, uint32_t max);
+	/*
+	 * poll_length - Poll one receive completion and provide the related
+	 *               message length.
+	 *
+	 * The function returns only the length of the completed message.
+	 * In case of inline received message the message will be copied
+	 * to the provided buffer ('buf') and the '*inl' status will be set.
+	 * The function extracts only completion of regular receive-messages.
+	 * In case of send-message completion or SRQ receive-message completion
+	 * it returns -1.
+	 *
+	 * Usage example: In case a CQ is connected to one receive-queue
+	 *                the application may use this function to get
+	 *                the size of the next received message.
+	 *
+	 * Return value (n):
+	 *    n > 0 : successful completion with positive length.
+	 *            *inl will be set to 1 if data was copied to buffer.
+	 *
+	 *    0     : Empty.
+	 *    n == -1 : operation failed. completion is not extracted.
+	 *              To extract this completion, ibv_poll_cq() must be used
+	 */
+	int32_t (*poll_length)(struct ibv_cq *cq, void *buf, uint32_t *inl);
+	/*
+	 * poll_length_flags - Poll one receive completion and provide the related
+	 *                     message length and completion flags.
+	 *
+	 * The same as poll_length but also retrieves completion flags as
+	 * defined by the enum ibv_exp_cq_family_flags
+	 */
+	int32_t (*poll_length_flags)(struct ibv_cq *cq, void *buf, uint32_t *inl, uint32_t *flags);
+	/*
+	 * poll_length_flags_mp_rq - Poll one receive completion and provide the related
+	 *                           message length, packet-offset and completion flags.
+	 *
+	 * The same as poll_length_flags but:
+	 *  - Without the inline-receive support.
+	 *  - Also retrieves packet-offset (for multi-packet RQ).
+	 */
+	int32_t (*poll_length_flags_mp_rq)(struct ibv_cq *cq, uint32_t *offset, uint32_t *flags);
+};
+.fi
+
+.PP
+.B ibv_exp_release_intf()
+returns 0 on success, or the value of errno on failure (which indicates the failure reason).
+
+.SH "NOTES"
+Application may call ibv_exp_query_intf for QPs in the following states:
+    IBV_QPS_INIT, IBV_QPS_RTR and IBV_QPS_RTS
+
+.SH "SEE ALSO"
+.BR ibv_exp_create_res_domain (3)
+.SH "AUTHORS"
+.TP
+Moshe Lazer <moshel@mellanox.com>

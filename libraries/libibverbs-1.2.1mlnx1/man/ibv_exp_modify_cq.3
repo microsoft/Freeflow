@@ -1,0 +1,64 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_MODIFY_CQ 3 2014-04-09 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_modify_cq \- modify attributes of a complition queue (CQ)
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_modify_cq(struct ibv_cq " "*cq" ,
+.BI "                      struct ibv_exp_cq_attr " "*cq_attr" ,
+.BI "                      int " "cq_attr_mask" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_modify_cq()
+modifies the attributes of CQ
+.I cq
+with the attributes in
+.I cq_attr
+according to the mask
+.I cq_attr_mask\fR.
+.nf
+
+The argument \fIcq_attr\fR is an ibv_exp_cq_attr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+struct ibv_exp_cq_attr {
+.in +8
+uint32_t                comp_mask; /* Set to IBV_EXP_CQ_ATTR_RESERVED-1 */
+struct {
+.in +8
+uint16_t                cq_count;  /* Event Generation Moderation counter */
+uint16_t                cq_period; /* Event Generation Moderation timer in microseconds */
+.in -8
+} moderation;
+uint32_t                cq_cap_flags; /* use ibv_exp_cq_cap_flags from verbs_exp.h */
+.in -8
+};
+.fi
+.PP
+The argument
+.I cq_attr_mask
+specifies the CQ attributes to be modified.
+The argument is either 0 or the bitwise OR of one or more of the following flags:
+.PP
+.TP
+.B IBV_EXP_CQ_MODERATION \fR Set the CQ moderation parameters
+.TP
+.B IBV_EXP_CQ_CAP_FLAGS \fR Set the CQ capability flags
+.SH "RETURN VALUE"
+.B ibv_exp_modify_cq()
+returns 0 on success, or the value of errno on failure (which indicates the failure reason).
+.SH "NOTES"
+If any of the modify attributes is invalid, none of the attributes will be modified.
+.SH "SEE ALSO"
+.BR ibv_exp_create_cq (3),
+.BR ibv_destroy_cq (3)
+
+.SH AUTHORS
+.TP
+Igor Ivanov
+.RI < Igor.Ivanov@itseez.com >
+.TP
+Majd Dibbiny
+.RI < majd@mellanox.com >

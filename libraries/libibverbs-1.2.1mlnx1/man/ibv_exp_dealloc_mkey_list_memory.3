@@ -1,0 +1,38 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_DEALLOC_MKEY_LIST_MOMORY 3 2014-08-28 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_dealloc_mkey_list_memory \- deallocates the struct that was allocated using ibv_exp_alloc_mkey_list_memory()
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_dealloc_mkey_list_memory(struct ibv_exp_mkey_list_container "  "*mem" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_dealloc_mkey_list_memory()
+dallocates the argument
+.I mem
+ that was allocated using ibv_exp_alloc_mkey_list_memory() 
+.PP
+The argument
+.I mem 
+is an ibv_exp_mkey_list_container struct and is defined in <infiniband/verbs_exp.h> as follow:
+.PP
+.nf
+struct  ibv_exp_list_container {
+.in +8
+uint32_t                         max_klm_list_size; /* maximum number of KLMs we can use to create the UMR */
+struct ibv_context               *context; /* RDMA device context */
+.in -8
+};
+
+.SH "RETURN VALUE"
+.B ibv_exp_dealloc_mkey_list_memory()
+returns 0 on success, the value of errno on failure (which indicates the failure reason).
+.PP
+.SH "SEE ALSO"
+.BR ibv_exp_alloc_mkey_list_memory (3)
+.SH "AUTHORS"
+.TP
+Haggai Abramovsky <hagaya@mellanox.com>

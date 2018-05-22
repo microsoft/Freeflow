@@ -1,0 +1,67 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_PREFETCH_MR 3 2013-08-06 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_prefetch_mr \- prefetch pages of an on-demand paging memory region
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs.h>
+.sp
+.BI "int " "ibv_exp_prefetch_mr"(
+.BI "                     struct ibv_mr " "*mr" ", struct ibv_exp_prefetch_attr " "*attr");
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_prefetch_mr()
+requests the driver to prefetch a given range of pages and map them for access from the HCA.
+The function is applicable to MRs that were registered as ODP, i.e. with the
+experimental access flag
+.B IBV_EXP_ACCESS_ON_DEMAND.
+.PP
+.I mr
+- the memory region containing the area that the driver is requested to prefetch.
+.PP
+.I attr
+- a structure containing the input arguments to the function. It is defined as:
+.PP
+.nf
+struct ibv_exp_prefetch_attr {
+.in +8
+	uint32_t flags;	        /* Use enum ibv_exp_prefetch_flags in verbs_exp.h */
+	void *addr;                 /* Address of the area to prefetch */
+	size_t length;              /* Length of the area to prefetch */
+	uint32_t comp_mask;         /* Use enum ibv_exp_prefetch_attr_comp_mask in verbs_exp.h */
+.in -8
+};
+.fi
+.PP
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_prefetch_mr()
+returns 0 when the call was successful. Otherwise returns an error code:
+.PP
+.in +2
+.B ENOSYS
+libibverbs or provider driver doesn't support the prefetching verb.
+.PP
+.in +2
+.B EFAULT
+when the range requested is out of the memory region bounds, or when
+parts of it are not part of the process address space.
+.PP
+.in +2
+.B EINVAL
+when the MR is invalid.
+.SH "NOTES"
+This function is considered as a hint to the driver. The actual prefetch is
+done on 'best effort' policy, meaning that the driver may decide to ignore
+the fetch. In such case the call is considered successful, although no prefetch
+was done.
+.PP
+This function is an experimental verbs extensions supported only by the
+Mellanox OFED driver collection. It will be deprecated in the future once
+a stable API is added to the upstream version of libibverbs.
+.SH "SEE ALSO"
+.BR ibv_exp_reg_mr (3)
+.SH "AUTHORS"
+.TP
+Haggai Eran <haggaie@mellanox.com>

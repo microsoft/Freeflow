@@ -1,0 +1,152 @@
+.\" -*- nroff -*-
+.\"
+.TH PEER-DIRECT 7 2013-08-22 peer-direct "Libibverbs Programmer's Manual"
+.SH "NAME"
+Peer-Direct sync \- Infiniband verbs library sub-system
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/peer_ops.h>
+.fi
+.SH "DESCRIPTION"
+
+Peer-Direct technology  gives peer hardware
+devices, such as GPU cards, dedicated AS accelerators, etc. ability
+to take control over HCA in critical path offloading CPU.
+
+To achieve this, there is a set of verbs calls and
+structures providing application with abstract description of operation
+sequences intended to be executed by peer device.
+.PP
+QP/CQ have corresponding comp_mask flags to make them
+accesible by peer device:
+.TP
+.B IBV_EXP_QP_INIT_ATTR_PEER_DIRECT
+.TP
+.B IBV_EXP_CQ_INIT_ATTR_PEER_DIRECT
+.SS struct ibv_peer_direct_attr
+Structure describing peer device associated with registered QP/CQ -
+new part of corresponding exp_create_attr strucutures:
+.sp
+.nf
+struct ibv_exp_peer_direct_attr {
+    uint64_t peer_id;
+    struct ibv_peer_buf *(*buf_alloc)(struct ibv_peer_buf_alloc_attr *attr);
+    int (*buf_release)(struct ibv_peer_buf *pb);
+    uint64_t (*register_va)(void *start, size_t length, uint64_t peer_id);
+    int (*unregister_va)(uint64_t registration_id, uint64_t peer_id);
+    uint64_t caps;
+    size_t peer_dma_op_map_len;
+    uint32_t comp_mask;
+}
+.fi
+.sp
+.I peer_id
+Unique ID per peer device.  Used to identify specific HW devices where relevant.
+.sp
+.I buf_alloc
+callback should return struct
+.I ibv_peer_buf
+with buffer of at least
+.B attr->length
+length.  Buffer should be mapped in the application address space
+for read/write (depends on
+.B attr->dir
+value).
+If NULL returned then buffer will be allocated in system memory by ibverbs driver.
+Otherwise pointer to struct
+.I ibv_peer_buf
+describing allocated buffer returned.
+.sp
+.I buf_release
+If buffer was allocated by buf_alloc then buf_release will be called to release it.
+.B pb
+- struct returned by buf_alloc.
+buf_release is responsible to release everything allocated by buf_alloc.
+.br
+Return 0 on succes.
+.sp
+.I register_va
+callback should register virtual address from the
+application as an area the peer is allowed to access.
+.B start
+pointer to beginning of region in virtual space
+.B length
+length of region
+.B peer_id
+the ID of the peer device which will be accessing the region.
+.br
+Return id of registered address on success, 0 on failure.
+.sp
+.I unregister_va
+If virtual address was registered with register_va then
+unregister_va will be called to unregister it.
+.BR registration_id
+- id returned by register_va
+.B peer_id
+the ID of the peer device passed to register_va.
+.br
+Return 0 on success.
+.sp
+.I caps
+bitmask of supported ibv_peer_op types
+.sp
+.I peer_dma_op_map_len
+Maximal length of DMA operation the peer can do in copy-block
+.sp
+.I comp_mask
+Reserved for future extensions, must be 0
+.SS struct ibv_peer_buf_alloc_attr
+description of desired buffer
+.sp
+.nf
+struct ibv_peer_buf_alloc_attr {
+    size_t length;
+    uint32_t dir;
+    uint64_t peer_id;
+    uint32_t comp_mask;
+}
+.fi
+.sp
+.I dir
+Indicate HW entities supposed to access memory buffer:
+.TP
+IBV_PEER_DIRECTION_FROM_X means X writes to the buffer
+.TP
+IBV_PEER_DIRECTION_TO_Y means Y read from the buffer
+.TP
+IBV_PEER_DIRECTION_FROM_CPU
+.TP
+IBV_PEER_DIRECTION_FROM_HCA
+.TP
+IBV_PEER_DIRECTION_FROM_PEER
+.TP
+IBV_PEER_DIRECTION_TO_CPU
+.TP
+IBV_PEER_DIRECTION_TO_HCA
+.TP
+IBV_PEER_DIRECTION_TO_PEER
+.P
+.I peer_id
+The ID of the peer device which will be accessing the allocated buffer
+.sp
+.I comp_mask
+Reserved for future extensions, must be 0
+.SS struct ibv_peer_buf
+
+.nf
+struct ibv_peer_buf {
+	void *addr;
+	size_t length;
+	uint32_t comp_mask;
+}
+.fi
+.SH "SEE ALSO"
+.BR ibv_exp_create_qp (3),
+.BR ibv_exp_create_cq (3),
+.BR ibv_exp_peer_commit_qp (3),
+.BR ibv_exp_rollback_qp (3),
+.BR ibv_exp_peer_peek_cq (3),
+.BR ibv_exp_peer_abort_peek_cq (3)
+.SH "AUTHORS"
+.TP
+Artemy Kovalyov <artemyko@mellanox.com>

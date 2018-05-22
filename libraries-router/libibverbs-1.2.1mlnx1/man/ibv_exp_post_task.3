@@ -1,0 +1,65 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_POST_TASK 3 2014-04-09 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_post_task \- post a list of send/recv tasks (TAKSs) to QPs
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "int ibv_exp_post_task(struct ibv_context " "*context" ",
+.BI "                  struct ibv_exp_task " "*task" ,
+.BI "                  struct ibv_exp_task " "**bad_task" );
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_post_task()
+posts the linked list of tasks (TASKs) starting with
+.I task.
+It stops processing TASKs from this list at the first failure (that can
+be detected immediately while requests are being posted), and returns
+this failing TASK through
+.I bad_task\fR.
+Every TASK consists of the linked list of work requests (WRs) is being
+posted to queue pair (QP). The task list may have entries posted to
+multiple QPs and includes send and receive communication primitives,
+as well as the communication coordination primitives wait, send_enable
+and receive_enable.
+There are two types of TASK as send/recv.
+.PP
+The argument
+.I task
+is an ibv_exp_task struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct ibv_exp_task {
+.in +8
+enum ibv_exp_task_type    task_type;                /* Task type: IBV_EXP_TASK_SEND or IBV_EXP_TASK_SEND */
+struct {
+.in +8
+struct ibv_qp   *qp;                       /* Addressed QP */
+union {
+.in +8
+struct ibv_exp_send_wr *send_wr;  /* Pointer to next WR in list, NULL if last WR */
+struct ibv_recv_wr     *recv_wr;  /* Pointer to next WR in list, NULL if last WR */
+.in -8
+};
+.in -8
+} item;
+.in -8
+struct ibv_exp_task      *next;                     /* Pointer to next TASK in list, NULL if last TASK */
+uint32_t                 comp_mask;			  /* reserved for future growth (must be 0) */
+};
+.sp
+.fi
+.PP
+.SH "RETURN VALUE"
+.B ibv_exp_post_task()
+returns 0 on success, or the value of errno on failure (which indicates the failure reason).
+
+.SH AUTHORS
+.TP
+Igor Ivanov
+.RI < Igor.Ivanov@itseez.com >
+.TP
+Majd Dibbiny
+.RI < Majd@mellanox.com >

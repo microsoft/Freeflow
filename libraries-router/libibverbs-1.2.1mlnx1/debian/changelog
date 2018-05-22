@@ -1,0 +1,392 @@
+libibverbs (1.2.1mlnx1-OFED.4.0.1.5.3.40200) unstable; urgency=low
+
+  * Roll 1.2.1mlnx1-1
+
+ -- Alaa Hleihel <alaa@mellanox.com>  Tue, 09 Aug 2016 18:47:10 +0200
+
+libibverbs (1.1.8mlnx1-1) unstable; urgency=low
+
+  * libibverbs/man: Update ibv_exp_create_mr man page.
+  * libibverbs/man: Added description to ibv_exp_query_dct man page.
+  * libibverbs/man: Added access flag to ibv_exp_bind_mw man page.
+  * libibverbs: move Valgrind macros from being default on compilation
+  * Check for GRH when creating RoCE AH
+  * libibverbs/man: fix typo in ibv_exp_create_qp
+  * libibverbs: Add wc_auto_evict_size to arch
+  * Avoid VERBS_SET_ENV variable and use ibv_exp_use_priv_env
+  * libibverbs: update qp->state in ibv_exp_cmd_modify_qp.
+  * Implement verbs sepcific setenv/getenv
+  * libibverbs/examples: fix memory leak in ibv_cc_pingpong
+  * libibverbs.spec.in: Changed valgrind libs DESTDIR
+  * Fixed invalid date
+  * libibverbs.spec.in: Added valgrind support on RHEL6.x
+  * initialize struct in __ibv_reg_mr
+  * fixed and added valgrind Macros
+  * fix fork support for both contig pages and ODP
+  * libibverbs: added option to ask for specific addr in contig_pages registratoin
+  * gtest: fix test to set errno
+  * Add a man page for ibv_exp_rereg_mr
+  * libibverbs/man: added ibv_exp_query_dct to Makefile.am
+  * libibverbs/man: update man pages
+  * libibverbs/man: fix  man pages.
+  * libibverbs/man: added ibv_exp_query_dct man page
+  * libibverbs/man: update/created UMR man pages
+  * libibverbs: Fix ack evnets acounting for DC targets
+  * man pages: typos
+  * man: Fix manual pages of different verbs.
+  * libibverbs: fix ibv_*pingpong test
+  * libibverbs: added -Werror to Makefile
+  * libibverbs: Fix handling asynchronous events for DCT
+  * libibverbs: fix compatability issue in create_dct
+  * libibverbs/example: fixed ibv_umr with repeat_block
+  * libibverbs: Fix some issues found by coverity
+  * libibverbs.spec.in: devel package provides verbs.h
+  * libibverbs: UMR API fix
+  * libibverbs: fixed ibv_umr with repeat_block flag
+  * libibverbs: fix ibv_umr with contigouse mr
+  * libibverbs: Add max_dct to exp_query_device
+  * libibverbs: fix ibv_umr test
+  * libibverbs: Update comment to ibv_exp_modify_qp
+  * libibverbs: add enum ibv_exp_prefetch_flags for flags field.
+  * libibverbs: fix issues in verbs_exp.h
+  * libibvebs/examples: move printf to fprintf in umr test.
+  * examples/devinfo: change usage screen for --ib-port.
+  * libibverbs: don't run ibv_dontfork_range on ODP MRs
+  * libibverbs: align ibv_exp_destroy_dct to 64 bit.
+  * libibverbs: add new transports for odp caps.
+  * libibverbs: fix segfault when creating DCI without recv_cq
+  * libibverbs: Fix qp state update
+  * libibverbs: fixed dealloc PD failure in the test
+  * libibverbs: added poll_cq to umr invalidate case
+  * Parse grh as IPv4 or IPv6 header
+  * configure: Update AM_INIT_AUTOMAKE to support new auto tools.
+  * libibverbs: Align dct_key to 64 bits in ibv_exp_modify_qp
+  * libibvebrs: update ibv_exp_reg_mr manual page
+  * libibverbs: Define the Implicit MR size.
+  * libibvebrs: fix ibv_exp_prefetch_mr manual page
+  * libibverbs: remove attr_size from ibv_exp_prefetch_mr.
+  * libibverbs: fix void_ptr used in arithmetic
+  * libibverbs: Update PD on create exp mr
+  * libibverbs: Update QP state on modify and query
+  * Add MR re-registeration
+  * libibverbs: Indicate UMR support at create
+  * libiverbs/examples: Clear ah_attr before use
+  * libibverbs/examples: support odp in rc_pingpong
+  * libibverbs: Avoid setting the mr->length and mr->addr in relaxed access mode.
+  * libibverbs: add relaxed access bit.
+  * libibverbs: Add new ibv_exp_prefetch_mr verb for ODP MRs.
+  * libibverbs: add experimental register MR verb
+  * libibverbs: query odp caps in query device
+  * libibverbs: Add completion opcodes for masked atomic operations
+  * libibverbs: rename field on struct ibv_exp_ext_atomics_params
+  * libibverbs: fix calculation of experimental context ptr
+  * libibverbs: fix calculation of experimental context ptr
+  * libibverbs: Re-work UMR API
+  * libibverbs: Add work completio opcode for UMR ops
+  * libibverbs/examples: Fix comp_mask issue
+  * libibverbs: Modify atomic cap sizes to a bitmask
+  * libibverbs: Add aarch64
+  * libibverbs: add UMR functionality
+  * libibverbs: Add man/ibv_exp_create_dct.3 to Makefile.am.
+  * libibverbs: Add support NOP send opcoded
+  * libibverbs: Init comp mask in dctgt example
+  * libibverbs: Remove unused variables
+  * /libibverbs/ibv_xsrq_pingpong change default mtu size from 2048 to 1024
+  * libibverbs: Simplify extended atomics API
+  * libibverbs: Add atomic support
+  * libibverbs: fix mem leak in handle_encoded_mac
+  * libibverbs: updated man pages according to the experimental API.
+  * libibverbs: Fix bugger overflow in xrc_pingong
+  * libibverbs: fix comp_mask issues
+  * libibverbs/examples: print hca_core_clock in ibv_devinfo verbose mode.
+  * libibverbs: update qp state on exp modify qp
+  * Convering GID to MAC should use (xor 2) only on port 1
+  * libibverbs: improve experimental interface
+  * libibverbs: Avoid provisioning of max RDMA/atomics for DC INI
+  * Fix libibverbs usage of libnl3
+  * examples: change imm_data to ex.invalidate_rkey
+  * Get rid of double meaning field in exp_send_wr
+  * remove unnecessary comment
+  * Add support for libnl3 and align code with upstream
+  * Initialize comp_mask in exp. create_cq
+  * libibverbs: change wc_size from int to uint32_t.
+  * libibverbs: Update DCI example to match PRM 2.0 definitions
+  * libibverbs/examples: Organize the verbose mode print.
+  * libibverbs: compile issue on some platforms
+  * libibverbs: enable direct access to provider main data path functions
+  * Fix ibv_exp_create_cq command
+  * libibverbs: added gid support to ibv_xsrq_pingpong test
+  * libibverbs/examples: remove the exp_ prefix in the verbose print.
+  * libibverbs: Add comments to verbs_exp.h
+  * libibverbs/examples: report device_cap_flags2 in ibv_devinfo -v.
+
+ -- Vladimir Sokolovsky <vlad@mellanox.com>  Wed, 10 Dec 2014 10:53:10 +0200
+
+libibverbs (1.1.7mlnx1-1) unstable; urgency=low
+
+  * libibverbs: use uint32_t instead of int for comp_mask.
+  * libibverbs/examples: ibv_devinfo usage screen correction.
+  * libibverbs: Update support for atomic response endianess
+  * libibvers: Update cap flags enums
+  * libibverbs: Add support for atomic response endianess
+  * libibverbs: clarify the name of device_cap_flags2 flags
+  * libibverbs: Change definition of rmb for x86_64 archs
+  * libibverbs: Support getting notifications from a DCT
+  * libibverbs: Align verbs interface with upstream
+  * libibverbs: Fix init to rtr params for DC initiator
+  * libibverbs/tests: update tests for new libibverbs experimental interface
+  * libibverbs: add ibv_exp_reg_mr experimental verb
+  * libibverbs: Change legacy extended verbs to experimental verbs
+  * libibverbs: Change legacy extended uverbs to experimental uverbs
+  * libibverbs: Avoid endless loop on occupied port
+  * (origin/mlnx_ofed_2_1) libibverbs: update ibv_poll_cq man page
+  * libibverbs: add man page for ibv_exp_create_dct
+  * tests: Remove IBV_CALC_OP_MAXLOC from supported operations
+  * libibverbs: Fix DCT kernel/user interface
+  * libibverbs: Change inline receive indication to create DCT
+  * libibverbs: Return gracefully from ibv_dctgt
+  * Fix memory leak in neigh resolver
+  * Add a new ibv_exp_query_port
+  * examples/ping_pong: buffer defined with wrong length
+  * tests: Fix CD.TC7 test case
+  * libibverbs: Add option for mtu in DC ini
+  * libibverbs: Fix destroy DCT
+  * libibverbs: verbs_exp.h need to include verbs.h
+  * libibverbs: add debian support to EXTRA_DIST
+  * libibverbs: add support for "git review" command line gerrit tool
+  * libibverbs: fix autotools configuration
+  * man: fix ib_create_flow man page to match other man pages style
+  * Cosmetic changes to flow steering struct
+  * Fix vagrind errors.
+  * examples: Change ibv_cc_pingpong and ibv_task_pingpong to exp API
+  * tests: Add IBV_TEST_DEV environment variable
+  * neigh: Add specific resolution for multicast
+  * libibverbs: Add inline flag to ibv_dctgt
+  * libibverbs: Fix inline DC targets
+  * libibvers: add verb extension
+  * libibverbs: task_pingpong can't modify QP to RTR
+  * libibverbs: Fix DC example sizes
+  * libibverbs: Change CD tests to exp API
+  * libibverbs: Change inline receive interface
+  * neigh resolver sometimes fail after restart
+  * Neigh_resolver: socket should choose a random local port
+  * Some netlink sockets are trying to take an already allocated sockets
+  * Neigh resolver timer elapsed too fast from second iteration
+  * examples: modify ibv_dctgt to read DC capabilites
+  * libibverbs: Add DC extended capabilities
+  * libibverbs: return DC related objects in query
+  * libibverbs: Remove deprecated enum IBV_QPT_DCT
+  * Revert "move flow steering to experimental verbs"
+  * move flow steering to experimental verbs
+  * flow steering sync with latest kernel upstream code
+  * libibverbs: Move DC calls to experimental verbs files
+  * libibverbs: Add missing state fields to query DCT
+  * libibverbs: remove inline field for DCT attibutes
+  * libibverbs: Modify support for DC
+  * libibiverbs: Add missing include
+  * libibverbs: Install include files to include dir
+  * Change place of bind_mw struct in ib_send_wr due to compatibility issues
+  * libibverbs: Add experimental inline receive
+  * Revert "Adding to rc_pingpong an option to perform orthogonal RDMA"
+  * Revert "Adding to rc_pingpong an option of orthogonal RDMA through MW"
+  * Revert "Fix in ibv_rc_pinpong, failed to register MR"
+  * neigh_resolver: incorrectly calculated timeout
+  * Add support for IPv4 encoded multicast addresses
+  * Fix in ibv_rc_pinpong, failed to register MR
+  * fix libibverbs compilation for ppc
+  * Adding to rc_pingpong an option of orthogonal RDMA through MW
+  * Adding to rc_pingpong an option to perform orthogonal RDMA
+  * Adding man pages for memory windows
+  * Adding new verbs for memory window
+  * Adding memory window commands
+  * Extending struct ibv_send_wr
+  * Re-organize struct ibv_mw_bind
+  * Adding capabilities flags that are related to memory window
+  * libibverbs.spec.in: Add option to pass configure options to spec file. usage: 	--define 'configure_options <options>'
+  * make neigh resolution optional
+  * enumeration for MIC and SCIF
+  * extension verb: ibv_query_values_ex
+  * extension verb: add timestamping for query_device extension verb
+  * extension verb: ibv_create_cq_ex - add timestamp flags
+  * extension verb: ibv_poll_cq_ex
+  * integrate neighbour lookup
+  * Added libnl dependency
+  * XRC - Sample application issues
+  * XRC - remove dead-code
+  * update verbs man page
+  * man pages for ibv_create_flow/ibv_destroy_flow
+  * XRC - sync verbs location with upstream
+  * libibverbs: Add support for Create CQ extended
+  * libibverbs: Modify ibv_asyncwatch to accept the monitored device
+  * tests: Add check if device support Cross-Channel functionality
+  * tests: Add possibility to configure tested QPs as UD
+  * examples: Fix cleanup bug in the sample application
+  * XRC - sync to latest upstream changes
+  * compile fix
+  * XRC issues
+  * fix macro typo
+  * XRC compat issue
+  * libibverbs: XRC man pages
+  * libibverbs: XRC source compat layer
+  * libibverbs: XRC binary compat layer
+  * Add DC support
+
+ -- Vladimir Sokolovsky <vlad@mellanox.com>  Sun, 23 Mar 2014 14:16:10 +0200
+
+libibverbs (1.1.6mlnx2-1) unstable; urgency=low
+
+  * libibverbs: XRC sample, fix message size
+  * tests: Add unit-tests for Cross-channel API
+  * examples: Add examples for Cross-channel API
+  * man: Add manuals for new verbs api
+  * libibverbs: Add Cross-channel capability
+  * libibverbs: Added new flag IB_DEVICE_CROSS_CHANNEL into enum ib_device_cap_flags
+  * libibverbs: Add ibv_query_device_ex
+  * libibverbs: Add ibv_modify_cq
+  * libibverbs: Support Cross-channel capability in ibv_create_qp_ex
+  * libibverbs: XRC open flags
+  * libibverbs: Add XRC sample source file
+  * libibverbs: Add XRC sample application
+  * libibverbs: Add man page for ibv_open_qp
+  * libibverbs: Add ibv_open_qp
+  * libibverbs: Add support for XRC QPs
+  * livibverbs: Add support for XRC SRQs
+  * libibverbs: Introduce XRC domains
+  * Remove old APIs definitions
+  * Implement ibv_create_flow and ibv_destroy_flow
+  * Add general definitions to support verbs extensions
+  * Revert "Implement ibv_attach_flow and ibv_detach_flow."
+  * Revert "Pad ibv_attach_flow struct to avoid alignment problems"
+  * Revert "Expose rule_type field in ibv_flow_spec struct"
+  * shared_mr: example program adapted to use new verbs extension API
+  * shared_mr support on top on verbs extenstion
+  * libibverbs: Infrastructure to support verbs extensions
+  * Revert "verbs extension mechanism based on Sean first patch"
+
+ -- Vladimir Sokolovsky <vlad@mellanox.com>  Mon, 7 Jan 2013 13:38:10 +0200
+
+libibverbs (1.1.6mlnx1-1) unstable; urgency=low
+
+  * New Mellanox release.
+
+ -- Vladimir Sokolovsky <vlad@mellanox.com>  Mon, 7 Jan 2013 13:38:10 +0200
+
+libibverbs (1.1.6-1) unstable; urgency=low
+
+  * Don't use brace expansion for {a,so} in libibverbs-dev.install
+  * New upstream releases.
+    - Add IBoE support
+    - Add ibv_devinfo support for displaying extended speeds (FDR, etc)
+
+ -- Roland Dreier <roland@digitalvampire.org>  Wed, 21 Dec 2011 16:35:08 -0800
+
+libibverbs (1.1.5-1) unstable; urgency=low
+
+  * Switch to dpkg-source 3.0 (quilt) format.
+  * New upstream releases.
+    - Fix handling of madvise() failures
+    - Add path record definitions to sa.h
+    - Handle huge pages for fork support/madvise
+    - Fix crash if no devices and ibv_get_device_list() called multiple times
+  * Update maintainer and set DM-Upload-Allowed to yes.  (Closes: #632106)
+  * Don't ship .la files.
+  * Update to Standards-Version: 3.9.2.
+
+ -- Roland Dreier <roland@digitalvampire.org>  Wed, 29 Jun 2011 23:57:34 -0700
+
+libibverbs (1.1.3-2) unstable; urgency=low
+
+  * Add override_dh_strip target to get debugging information actually
+    put into the -dbg package.
+
+ -- Roland Dreier <rolandd@cisco.com>  Wed, 11 Nov 2009 14:44:51 -0800
+
+libibverbs (1.1.3-1) unstable; urgency=low
+
+  * New upstream release.
+    - Don't use enums for bit flags (avoid C++ annoyances)
+    - Return some errors via errno instead of stderr
+  * Move -dbg package to section debug.
+  * Update to Standards-Version: 3.8.3 (no changes needed).
+  * Change build system from cdbs to debhelper 7.
+
+ -- Roland Dreier <rolandd@cisco.com>  Thu, 29 Oct 2009 14:19:02 -0700
+
+libibverbs (1.1.2-1) unstable; urgency=low
+
+  * New upstream release.
+    - Fix memory registration failure cause by too-big madvise()
+    - Fix many Valgrind false positives
+    - Add functions to convert enum values to strings
+  * Replace deprecated ${Source-Version} with ${binary:Version}
+  * Use DEB_DH_MAKESHLIBS_ARGS_ALL to pass appropriate -V option to
+    dh_makeshlibs, since new symbols were added in libibverbs 1.1.2.
+    (Closes: #465435)
+  * Add debian/watch file.
+  * Update control file to talk about generic RDMA and iWARP, not just
+    InfiniBand, since libibverbs works with both IB and iWARP.
+  * Acknowledge NMU (Closes: #442638).
+
+ -- Roland Dreier <rolandd@cisco.com>  Fri, 18 Apr 2008 15:08:52 -0700
+
+libibverbs (1.1.1-1.1) unstable; urgency=low
+
+  * Non-maintainer upload.
+  * Re-generated autotools files to fix double build bug, closes: #442638
+  * Bumped Standards-Version to 3.7.3, no change needed.
+
+ -- Michael Meskes <meskes@debian.org>  Mon, 14 Apr 2008 10:07:58 +0000
+
+libibverbs (1.1.1-1) unstable; urgency=low
+
+  * New upstream release.
+    - Initialize state of newly created QPs to RESET (fixes problems
+      with libmlx4/ConnectX HCAs).
+    - Don't warn root about RLIMIT_MEMLOCK, since it doesn't matter.
+    - Fix free() errors in ibv_xx_pingpong examples.
+
+ -- Roland Dreier <rolandd@cisco.com>  Fri, 15 Jun 2007 12:49:02 -0700
+
+libibverbs (1.1-1) unstable; urgency=low
+
+  * New upstream release.
+    - Add support for use of fork() in applications.
+    - Add manual pages documenting API in section 3.
+    - New method of finding and loading device-specific drivers.
+    - Add basic support for iWARP devices.
+    - Provide compatible ABI for applications linked against libibverbs 1.0.
+  * Update libtool during build to avoid setting RPATH in binaries on amd64.
+
+ -- Roland Dreier <rolandd@cisco.com>  Sat, 28 Apr 2007 14:15:29 -0700
+
+libibverbs (1.0.4-1) unstable; urgency=low
+
+  * New upstream release.
+    - Fix static linking so it has a chance of working.
+    - Fix cut-and-paste error in sparc mb() macro.
+    - Other miscellaneous fixes.
+  * Improve package description.
+
+ -- Roland Dreier <rolandd@cisco.com>  Tue, 31 Oct 2006 15:04:33 -0800
+	
+libibverbs (1.0.3-1) unstable; urgency=low
+
+  * Change priority to extra, since libibverbs depends on libsysfs2, which
+    has priority extra.  (Debian policy section 2.5 states that a package
+    may not depend on another package of lower priority)
+  * New upstream release:
+    - For sparc, only generate membar instruction if compiling for V9
+      instruction set.  (Closes: #365559)
+    - Reduce (but not yet eliminate) dependency on libsysfs.
+    - Deprecate some ib_XXX symbol names and introduce ibv_XXX
+      replacements for internal consistency.
+    - Other minor fixes.
+  * Update to Standards-Version: 3.7.2.
+
+ -- Roland Dreier <rolandd@cisco.com>  Tue,  2 May 2006 15:33:14 -0700
+
+libibverbs (1.0.2-1) unstable; urgency=low
+
+  * Initial Release.  (Closes: #325752)
+
+ -- Roland Dreier <rolandd@cisco.com>  Wed, 15 Feb 2006 11:21:59 -0700

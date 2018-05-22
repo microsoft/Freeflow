@@ -1,0 +1,52 @@
+.\" -*- nroff -*-
+.\"
+.TH IBV_EXP_CREATE_DCT 3 2013-12-10 libibverbs "Libibverbs Programmer's Manual"
+.SH "NAME"
+ibv_exp_create_dct \- Create a Dynamically Connected Target (DCT) endpoint.
+.SH "SYNOPSIS"
+.nf
+.B #include <infiniband/verbs_exp.h>
+.sp
+.BI "struct ibv_dct *ibv_exp_create_dct(struct ibv_context " "*context,"
+.BI "                                   struct ibv_exp_dct_init_attr " "*attr" );
+.sp
+.fi
+.SH "DESCRIPTION"
+.B ibv_exp_create_dct()
+creates a DC target endpoint associated with the ibv_context
+.I context\fR.
+The argument
+.I attr
+is an ibv_exp_dct_init_attr struct, as defined in <infiniband/verbs_exp.h>.
+.PP
+.nf
+struct ibv_exp_dct_init_attr {
+.in +8
+struct ibv_pd          *pd;             /* PD associated with the protection domain */
+struct ibv_cq          *cq;             /* CQ used to report receive completions */
+struct ibv_srq         *srq;            /* The SRQ that will provide receive buffers */
+uint64_t                dc_key;         /* DC access key (64 bit key) */
+uint8_t                 port;           /* Port number */
+uint32_t                access_flags;   /* Access flags (IBV_ACCESS_REMOTE_READ/WRITE/ATOMIC) */
+uint8_t                 min_rnr_timer;  /* Min rnr NAK time between successive requests of rejected messages */
+uint8_t                 tclass;         /* Traffic class used in packets sent by the DCT in case GRH is used */
+uint32_t                flow_label;     /* Flow label used in packets sent by the DCT in case GRH is used */
+enum ibv_mtu            mtu;            /* MTU of the DCT */
+uint8_t                 pkey_index;     /* PKey index */
+uint8_t                 gid_index;      /* Gid index associated with the DCT (to verify incoming packets if GRH is used) */
+uint8_t                 hop_limit;      /* Hop limit used in packets sent by the DCT in case GRH is used */
+uint32_t                inline_size;    /* The size requested by the user to be inline received */
+uint32_t                create_flags;   /* Reserved (must be 0) */
+uint32_t                comp_mask;      /* reserved for future growth (must be 0) */
+.in -8
+};
+.fi
+.SH "RETURN VALUE"
+.B ibv_exp_create_dct()
+returns a pointer to the created DCT, or NULL if the request fails.
+.SH "AUTHORS"
+.TP
+Moshe Lazer <moshel@mellanox.com>
+.TP
+Eli Cohen <eli@mellanox.com>
+.TP
