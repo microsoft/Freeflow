@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 #define NSTRS       3           /* no. of strings  */
 #define ADDRESS     "/freeflow/router_unix.sock"  /* addr to connect */
 

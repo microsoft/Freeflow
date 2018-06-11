@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation. All rights reserved.
+// Licensed under the MIT License.
+
 #ifndef SHARED_MEMORY_H
 #define SHARED_MEMORY_H
 
