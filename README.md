@@ -1,21 +1,21 @@
 
 # Freeflow #
 
-Freeflow enables RDMA communication over container overlay network, e.g., Flannel, Weave, etc. The containers do not need direct access to the RDMA NIC hardware. A lightweight Freeflow router handles all the RDMA requests and has full access or QoS control. 
+Freeflow is a high performance container overlay network that enables RDMA communication and accelerates TCP socket to the same as bare metal. 
 
-This implementation is a research prototype, and its technical details will be published in academic papers. If you have any questions, please contact the authors below.
+Freeflow works with popular overlay network solutions including Flannel, Weave, etc. The containers have their individual virtual network interfaces and IP addresses, and do not need direct access to the hardware NIC interface. A lightweight Freeflow library inside containers intercepts RDMA and TCP socket APIs, and a Freeflow router outside containers helps accelerate those APIs. 
 
-Yibo Zhu (yibzh@microsoft.com)
+# Three working modes #
 
-Hongqiang Harry Liu (lampson0505@gmail.com)
+Freeflow works in three modes: fully-isolated RDMA, semi-isolated RDMA, and TCP.
 
-Daehyeok Kim (daehyeok@cs.cmu.edu)
+Current released version only includes fully-isolated RDMA, which provides the best isolation between different containers and works the best in multi-tenant environment. While it offers typical RDMA performance (40Gbps throughput and 1 microsecond latency), this comes with some CPU overhead penalty.
 
-Tianlong Yu (tianlony@andrew.cmu.edu)
+We will release the other two modes in the future. Semi-isolated RDMA provides the same CPU efficiency as bare-metal RDMA, while does not have full isolation on the data path. The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
 
-# Have a try out #
+# Quick Start: run a demo of Freeflow #
 
-### How to run a demo of Freeflow? ###
+Below is the steps of running Freeflow in fully-isolated RDMA mode.
 
 Step 1: Start Freeflow router (one instance per server)
 ```
@@ -57,16 +57,25 @@ You can download it from http://www.mellanox.com/page/products_dyn?product_famil
 Then, checkout the code of libraries/ and libmempool/
 Build and install the libraries to /usr/lib/ (which is default).
 
-Step 4: Repeat Step 2 to start customer contaienrs in more hosts.
+Step 4: Repeat Step 2 to start customer containers in more hosts.
 You can capture a Docker image of node1 for avoiding repeating the installations and building.
 
 Validation: in customer containers, install RDMA perftest tools with "sudo apt-get install perftest". Try "ib_send_bw" or "ib_send_lat".
 
 # Applications #
 
-Freeflow has been tested with RDMA-based Spark (http://hibd.cse.ohio-state.edu/), HERD (https://github.com/efficient/HERD), Tensorflow with RDMA enabled (https://github.com/tensorflow/tensorflow) and rsocket (https://linux.die.net/man/7/rsocket). Most RDMA applications should run with no (or very little) modification, and outperform traditional TCP socket-based implementation.
+For RDMA, Freeflow has been tested with RDMA-based Spark (http://hibd.cse.ohio-state.edu/), HERD (https://github.com/efficient/HERD), Tensorflow with RDMA enabled (https://github.com/tensorflow/tensorflow) and rsocket (https://linux.die.net/man/7/rsocket). Most RDMA applications should run with no (or very little) modification, and outperform traditional TCP socket-based implementation.
 
-# Note #
+For TCP, Freeflow has also been tested with many applications/framework, including DLWorkspace (https://github.com/Microsoft/DLWorkspace) and Horovod (https://github.com/uber/horovod).
 
-Current released version provides the best isolation between different containers and works the best in multi-tenant environment. This comes with a little performance penalty. We have another version that has the same performance as bare-metal RDMA, while gives up a little isolation. We will release it soon.
+# Contacts#
 
+This implementation is a research prototype, and its technical details will be published in academic papers. If you have any questions, please raise issues on Github or contact the authors below.
+
+Yibo Zhu (yibzh@microsoft.com)
+
+Hongqiang Harry Liu (lampson0505@gmail.com)
+
+Daehyeok Kim (daehyeok@cs.cmu.edu)
+
+Tianlong Yu (tianlony@andrew.cmu.edu)
