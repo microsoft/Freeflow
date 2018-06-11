@@ -3,7 +3,9 @@
 
 Freeflow is a high performance container overlay network that enables RDMA communication and accelerates TCP socket to the same as bare metal. 
 
-Freeflow works with popular overlay network solutions including Flannel, Weave, etc. The containers have their individual virtual network interfaces and IP addresses, and do not need direct access to the hardware NIC interface. A lightweight Freeflow library inside containers intercepts RDMA and TCP socket APIs, and a Freeflow router outside containers helps accelerate those APIs. 
+Freeflow works on top of popular overlay network solutions including Flannel, Weave, etc. The containers have their individual virtual network interfaces and IP addresses, and do not need direct access to the hardware NIC interface. A lightweight Freeflow library inside containers intercepts RDMA and TCP socket APIs, and a Freeflow router outside containers helps accelerate those APIs. 
+
+Freeflow is developed based on Linux RDMA project (https://github.com/linux-rdma/rdma-core), and released with MIT license.
 
 # Three working modes #
 
@@ -68,7 +70,7 @@ For RDMA, Freeflow has been tested with RDMA-based Spark (http://hibd.cse.ohio-s
 
 For TCP, Freeflow has also been tested with many applications/framework, including DLWorkspace (https://github.com/Microsoft/DLWorkspace) and Horovod (https://github.com/uber/horovod).
 
-# Contacts#
+# Contacts #
 
 This implementation is a research prototype, and its technical details will be published in academic papers. If you have any questions, please raise issues on Github or contact the authors below.
 
