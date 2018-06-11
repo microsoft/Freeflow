@@ -62,6 +62,8 @@ Build and install the libraries to /usr/lib/ (which is default).
 Step 4: Repeat Step 2 to start customer containers in more hosts.
 You can capture a Docker image of node1 for avoiding repeating the installations and building.
 
+Attention: the released implementation hard-codes the host IPs and virtual IP to host IP mapping in https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.cpp#L215 and https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.h#L76. For quick tests, you can edit it according to your environment. Ideally, the router should read it from container overlay controller/zookeeper/etcd.
+
 Validation: in customer containers, install RDMA perftest tools with "sudo apt-get install perftest". Try "ib_send_bw" or "ib_send_lat".
 
 # Applications #
@@ -72,7 +74,7 @@ For TCP, Freeflow has also been tested with many applications/framework, includi
 
 # Contacts #
 
-This implementation is a research prototype, and its technical details will be published in academic papers. If you have any questions, please raise issues on Github or contact the authors below.
+This implementation is a research prototype that shows the feasibility. It is NOT production quality code. The technical details will be published in academic papers. If you have any questions, please raise issues on Github or contact the authors below.
 
 Yibo Zhu (yibzh@microsoft.com)
 
