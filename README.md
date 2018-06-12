@@ -9,7 +9,7 @@ Freeflow is developed based on Linux RDMA project (https://github.com/linux-rdma
 
 # Three working modes #
 
-Freeflow works in three modes: fully-isolated RDMA (**master branch**), semi-isolated RDMA, and TCP (**tcp branch**).
+Freeflow works in three modes: fully-isolated RDMA ([**master branch**](https://github.com/Microsoft/Freeflow/tree/master)), semi-isolated RDMA, and TCP ([**tcp branch**](https://github.com/Microsoft/Freeflow/tree/tcp)).
 
 Current released version only includes fully-isolated RDMA, which provides the best isolation between different containers and works the best in multi-tenant environment, e.g., cloud. While it offers typical RDMA performance (40Gbps throughput and 1 or 2 microsecond latency), this comes with some CPU overhead penalty.
 
