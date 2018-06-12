@@ -19,8 +19,7 @@ We will release the other two modes in the future. Semi-isolated RDMA provides t
 
 Below show the performance of Spark and Tensorflow running in fully-isolated RDMA mode on servers connected with 40Gbps RDMA network.
 
-![Spark with Freeflow](/images/spark_perf.png)
-![Tensorflow with Freeflow](/images/tensorflow_image.png)
+<img src="/images/spark_perf.png" width="360" height="240"><img src="/images/tensorflow_image.png" width="360" height="240">
 
 # Quick Start: run a demo of Freeflow #
 
