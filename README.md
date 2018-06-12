@@ -1,7 +1,7 @@
 
 # Freeflow #
 
-Freeflow is a high performance container overlay network that enables RDMA communication and accelerates TCP socket to the *same* as the bare metal network. 
+Freeflow is a high performance container overlay network that enables RDMA communication and accelerates TCP socket to the *same* as the host network. 
 
 Freeflow works on top of popular overlay network solutions including Flannel, Weave, etc. The containers have their individual virtual network interfaces and IP addresses, and do not need direct access to the hardware NIC interface. A lightweight Freeflow library inside containers intercepts RDMA and TCP socket APIs, and a Freeflow router outside containers helps accelerate those APIs. 
 
@@ -11,11 +11,11 @@ Freeflow is developed based on Linux RDMA project (https://github.com/linux-rdma
 
 Freeflow works in three modes: fully-isolated RDMA ([**master branch**](https://github.com/Microsoft/Freeflow/tree/master)), semi-isolated RDMA, and TCP ([**tcp branch**](https://github.com/Microsoft/Freeflow/tree/tcp)).
 
-Current released version only includes fully-isolated RDMA, which provides the best isolation between different containers and works the best in multi-tenant environment, e.g., cloud. While it offers typical RDMA performance (40Gbps throughput and 1 or 2 microsecond latency), this comes with some CPU overhead penalty.
+Fully-isolated RDMA provides the best isolation between different containers and works the best in multi-tenant environment, e.g., cloud. While it offers typical RDMA performance (40Gbps throughput and 1 or 2 microsecond latency), this comes with some CPU overhead penalty.
 
-The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
+The TCP mode accelerates the TCP socket performance to the same as host network. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
 
-We will release semi-isolated RDMA in the future. It has the same CPU efficiency as bare-metal RDMA, while does not have full isolation on the data path. It works the best for single-tenant clusters, e.g., an internal cluster.
+We will release semi-isolated RDMA in the future. It has the same CPU efficiency as host RDMA, while does not have full isolation on the data path. It works the best for single-tenant clusters, e.g., an internal cluster.
 
 # Performance #
 
@@ -25,7 +25,7 @@ Below show the performance of Spark and Tensorflow running in fully-isolated RDM
 
 # Quick Start: run a demo of Freeflow #
 
-Below is the steps of running Freeflow in fully-isolated RDMA mode.
+Below are the steps of running Freeflow in fully-isolated RDMA mode.
 
 Step 1: Start Freeflow router (one instance per server)
 ```
@@ -41,8 +41,7 @@ Download and install the same version of RDMA libraries and drivers as the host 
 Currently, Freeflow is developed and tested with "MLNX_OFED_LINUX-4.0-2.0.0.1-ubuntu14.04-x86_64.tgz"
 You can download it from http://www.mellanox.com/page/products_dyn?product_family=26.
 
-Then, checkout the code of libraries-router/librdmacm-1.1.0mlnx/.
-Build and install the library to /usr/lib/ (which is default).
+Then, build the code in libraries-router/librdmacm-1.1.0mlnx/, and install the library to /usr/lib/ (which is default).
 
 Finally, checkout the code of ffrouter/.
 Build with "build.sh" in the source folder and run "./router router1".
@@ -61,13 +60,9 @@ Environment variable "FFR_NAME=router1" points to the container to the router (r
 "FFR_ID=10" is the ID of the contaienr in FreeFlow. Each container on the same host should have a unique FFR_ID.
 We are removing FFR_ID in next version. 
 
-Downloading and install the same version of RDMA libraries and drivers as the host machine.
-Currently, Freeflow is developed and tested with "MLNX_OFED_LINUX-4.0-2.0.0.1-ubuntu14.04-x86_64.tgz"
-You can download it from http://www.mellanox.com/page/products_dyn?product_family=26.
-Then, checkout the code of libraries/ and libmempool/
-Build and install the libraries to /usr/lib/ (which is default).
+Download and install the same version of RDMA libraries and drivers as Step 1. Then build the the code of libraries/ and libmempool/ and install to /usr/lib/ (which is default).
 
-Step 4: Repeat Step 2 to start customer containers in more hosts.
+Step 4: Repeat Step 3 to start customer containers in more hosts.
 You can capture a Docker image of node1 for avoiding repeating the installations and building.
 
 Attention: the released implementation hard-codes the host IPs and virtual IP to host IP mapping in https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.cpp#L215 and https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.h#L76. For quick tests, you can edit it according to your environment. Ideally, the router should read it from container overlay controller/zookeeper/etcd.
