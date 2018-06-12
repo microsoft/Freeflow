@@ -11,7 +11,7 @@ Freeflow is developed based on Linux RDMA project (https://github.com/linux-rdma
 
 Freeflow works in three modes: fully-isolated RDMA, semi-isolated RDMA, and TCP.
 
-Current released version only includes fully-isolated RDMA, which provides the best isolation between different containers and works the best in multi-tenant environment. While it offers typical RDMA performance (40Gbps throughput and 1 microsecond latency), this comes with some CPU overhead penalty.
+Fully-isolated RDMA provides the best isolation between different containers and works the best in multi-tenant environment. While it offers typical RDMA performance (40Gbps throughput and 1 microsecond latency), this comes with some CPU overhead penalty.
 
 The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
 
@@ -41,11 +41,19 @@ sudo docker run -it --entrypoint /bin/bash --net=weave -v /freeflow:/freeflow -e
 
 Step 3: repeat the above steps on another server. Then enter the two iperf3 containers and test. It should show the same performance as bare-metal iperf3.
 
-You can use any other application images to replace iperf3. Environment variable "VNET_PREFIX=10.32.0.0/12" means FreeFlow will treat IP addresses within "10.32.0.0/12" as overlay IP and others as external IP. For external IPs, connections will bypass FreeFlow and use the original overlay network. If you do not set this environment variable, FreeFlow will treat all addresses as overlay IP addresses. Environment variable "LD_PRELOAD=/freeflow/libfsocket.so" means all socket calls will be hijacked into FreeFlow. If you want to use legacy TCP/IP stack, simply set "export LD_PRELOAD=".
+You can use any other application images to replace iperf3. 
+
+"VNET_PREFIX=10.32.0.0/12" means FreeFlow will treat IP addresses within "10.32.0.0/12" as overlay IP and others as external IP. For external IPs, connections will bypass FreeFlow and use the original network path. If you do not set this environment variable, FreeFlow will intercept all addresses, and the container may lose connectivity to the Internet. 
+
+"LD_PRELOAD=/freeflow/libfsocket.so" means all socket calls will be intercepted by FreeFlow. If you want to temporarily disable Freeflow for a specific application, run like this
+
+```
+$ LD_PRELOAD="" application_x
+```
 
 # Build #
 
-Build the code in libfsocket/ and ffrouter/. Copy the generated binary into docker/ and build docker image from there.
+Build the code in libfsocket/ and ffrouter/. Copy the generated binary libfsocket.so and router into docker/ and build docker image from there.
 
 # Applications #
 
