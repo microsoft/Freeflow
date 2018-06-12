@@ -13,64 +13,39 @@ Freeflow works in three modes: fully-isolated RDMA, semi-isolated RDMA, and TCP.
 
 Current released version only includes fully-isolated RDMA, which provides the best isolation between different containers and works the best in multi-tenant environment. While it offers typical RDMA performance (40Gbps throughput and 1 microsecond latency), this comes with some CPU overhead penalty.
 
-We will release the other two modes in the future. Semi-isolated RDMA provides the same CPU efficiency as bare-metal RDMA, while does not have full isolation on the data path. The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
+The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
+
+We will release semi-isolated RDMA in the future. It provides the same CPU efficiency as bare-metal RDMA, while does not have full isolation on the data path.
 
 # Performance #
 
-Below show the performance of Spark and Tensorflow running in fully-isolated RDMA mode on servers connected with 40Gbps RDMA network.
+Freeflow TCP costs one more round trip time during connection establishment. The performance (throughput, latency and CPU overhead) afterwards is exactly the same as bare-metal TCP socket.
 
-<img src="/images/spark_perf.png" width="360" height="240"><img src="/images/tensorflow_image.png" width="360" height="240">
+# Quick Start: run a demo of Freeflow TCP #
 
-# Quick Start: run a demo of Freeflow #
-
-Below is the steps of running Freeflow in fully-isolated RDMA mode.
+Below assumes we use Weave as a base solution of container overlay. Freeflow works with other container overlay as well, e.g., Flannel.
 
 Step 1: Start Freeflow router (one instance per server)
-```
-sudo docker run --name router1 --net host -e "FFR_NAME=router1" -e "LD_LIBRARY_PATH=/usr/lib/:/usr/local/lib/:/usr/lib64/" -v /sys/class/:/sys/class/ -v /freeflow:/freeflow -v /dev/:/dev/ --privileged -it ubuntu:14.04 /bin/bash
-```
 
-Then log into the router container with
 ```
-sudo docker run exec -it router1 bash
+sudo docker run -d -it --privileged --net=host -v /freeflow:/freeflow -e "HOST_IP_PREFIX=192.168.1.0/24" --name freeflow freeflow/freeflow:tcp
 ```
 
-Download and install the same version of RDMA libraries and drivers as the host machine.
-Currently, Freeflow is developed and tested with "MLNX_OFED_LINUX-4.0-2.0.0.1-ubuntu14.04-x86_64.tgz"
-You can download it from http://www.mellanox.com/page/products_dyn?product_family=26.
+The option "HOST_IP_PREFIX=192.168.1.0/24" means your host subnet is 192.168.1.0/24. Please update it acoording to your own host subnet. 
 
-Then, checkout the code of libraries-router/librdmacm-1.1.0mlnx/.
-Build and install the library to /usr/lib/ (which is default).
+Step 2: Start iperf container (from an online image without modification)
 
-Finally, checkout the code of ffrouter/.
-Build with "build.sh" in the source folder and run "./router router1".
-
-Step 2: Repeat Step 1 to start router in other hosts.
-You can capture a Docker image of router1 for avoiding repeating the installations and building.
-
-Step 3: Start a customer container on the same host as router1
 ```
-sudo docker run --name node1 --net weave -e "FFR_NAME=router1" -e "FFR_ID=10" -e "LD_LIBRARY_PATH=/usr/lib" -e --ipc container:router1 -v /sys/class/:/sys/class/ -v /freeflow:/freeflow -v /dev/:/dev/ --privileged --device=/dev/infiniband/uverbs0 --device=/dev/infiniband/rdma_cm -it ubuntu /bin/bash
+sudo docker run -it --entrypoint /bin/bash --net=weave -v /freeflow:/freeflow -e "VNET_PREFIX=10.32.0.0/12" -e "LD_PRELOAD=/freeflow/libfsocket.so" --name iperf networkstatic/iperf3
 ```
 
-You may use any container overlay solution. In this example, we use Weave (https://github.com/weaveworks/weave).
+Step 3: repeat the above steps on another server. Then enter the two iperf3 containers and test. It should show the same performance as bare-metal iperf3.
 
-Environment variable "FFR_NAME=router1" points to the container to the router (router1) on the same host;
-"FFR_ID=10" is the ID of the contaienr in FreeFlow. Each container on the same host should have a unique FFR_ID.
-We are removing FFR_ID in next version. 
+You can use any other application images to replace iperf3. Environment variable "VNET_PREFIX=10.32.0.0/12" means FreeFlow will treat IP addresses within "10.32.0.0/12" as overlay IP and others as external IP. For external IPs, connections will bypass FreeFlow and use the original overlay network. If you do not set this environment variable, FreeFlow will treat all addresses as overlay IP addresses. Environment variable "LD_PRELOAD=/freeflow/libfsocket.so" means all socket calls will be hijacked into FreeFlow. If you want to use legacy TCP/IP stack, simply set "export LD_PRELOAD=".
 
-Downloading and install the same version of RDMA libraries and drivers as the host machine.
-Currently, Freeflow is developed and tested with "MLNX_OFED_LINUX-4.0-2.0.0.1-ubuntu14.04-x86_64.tgz"
-You can download it from http://www.mellanox.com/page/products_dyn?product_family=26.
-Then, checkout the code of libraries/ and libmempool/
-Build and install the libraries to /usr/lib/ (which is default).
+# Build #
 
-Step 4: Repeat Step 2 to start customer containers in more hosts.
-You can capture a Docker image of node1 for avoiding repeating the installations and building.
-
-Attention: the released implementation hard-codes the host IPs and virtual IP to host IP mapping in https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.cpp#L215 and https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.h#L76. For quick tests, you can edit it according to your environment. Ideally, the router should read it from container overlay controller/zookeeper/etcd.
-
-Validation: in customer containers, install RDMA perftest tools with "sudo apt-get install perftest". Try "ib_send_bw" or "ib_send_lat".
+Build the code in libfsocket/ and ffrouter/. Copy the generated binary into docker/ and build docker image from there.
 
 # Applications #
 
@@ -86,6 +61,5 @@ Yibo Zhu (yibzh@microsoft.com)
 
 Hongqiang Harry Liu (lampson0505@gmail.com)
 
-Daehyeok Kim (daehyeok@cs.cmu.edu)
+Danyang Zhuo (danyangz@cs.washington.edu)
 
-Tianlong Yu (tianlony@andrew.cmu.edu)
