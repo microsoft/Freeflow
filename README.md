@@ -15,6 +15,13 @@ Current released version only includes fully-isolated RDMA, which provides the b
 
 We will release the other two modes in the future. Semi-isolated RDMA provides the same CPU efficiency as bare-metal RDMA, while does not have full isolation on the data path. The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
 
+# Performance #
+
+Below show the performance of Spark and Tensorflow running in fully-isolated RDMA mode on servers connected with 40Gbps RDMA network.
+
+![Spark with Freeflow](/images/spark_perf.png)
+![Tensorflow with Freeflow](/images/tensorflow_image.png)
+
 # Quick Start: run a demo of Freeflow #
 
 Below is the steps of running Freeflow in fully-isolated RDMA mode.
@@ -70,7 +77,7 @@ Validation: in customer containers, install RDMA perftest tools with "sudo apt-g
 
 For RDMA, Freeflow has been tested with RDMA-based Spark (http://hibd.cse.ohio-state.edu/), HERD (https://github.com/efficient/HERD), Tensorflow with RDMA enabled (https://github.com/tensorflow/tensorflow) and rsocket (https://linux.die.net/man/7/rsocket). Most RDMA applications should run with no (or very little) modification, and outperform traditional TCP socket-based implementation.
 
-For TCP, Freeflow has also been tested with many applications/framework, including DLWorkspace (https://github.com/Microsoft/DLWorkspace) and Horovod (https://github.com/uber/horovod).
+For TCP, Freeflow has also been tested with many applications/framework, including DLWorkspace (https://github.com/Microsoft/DLWorkspace), Horovod (https://github.com/uber/horovod), Memcached, Nginx, PostSQL, and Kafka.
 
 # Contacts #
 
