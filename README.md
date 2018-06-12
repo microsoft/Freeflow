@@ -25,7 +25,7 @@ Below show the performance of Spark and Tensorflow running in fully-isolated RDM
 
 # Quick Start: run a demo of Freeflow #
 
-Below are the steps of running Freeflow in fully-isolated RDMA mode.
+Below are the steps of running Freeflow in fully-isolated RDMA mode. For TCP mode, refer to the README in [**tcp branch**](https://github.com/Microsoft/Freeflow/tree/tcp).
 
 Step 1: Start Freeflow router (one instance per server)
 ```
@@ -43,11 +43,9 @@ You can download it from http://www.mellanox.com/page/products_dyn?product_famil
 
 Then, build the code in libraries-router/librdmacm-1.1.0mlnx/, and install the library to /usr/lib/ (which is default).
 
-Finally, checkout the code of ffrouter/.
-Build with "build.sh" in the source folder and run "./router router1".
+Finally, build the code of ffrouter/ with "build.sh" in the source folder and run "./router router1".
 
-Step 2: Repeat Step 1 to start router in other hosts.
-You can capture a Docker image of router1 for avoiding repeating the installations and building.
+Step 2: Repeat Step 1 to start router in other hosts. You can capture a Docker image of router1 for avoiding repeating the installations and building.
 
 Step 3: Start a customer container on the same host as router1
 ```
@@ -56,14 +54,11 @@ sudo docker run --name node1 --net weave -e "FFR_NAME=router1" -e "FFR_ID=10" -e
 
 You may use any container overlay solution. In this example, we use Weave (https://github.com/weaveworks/weave).
 
-Environment variable "FFR_NAME=router1" points to the container to the router (router1) on the same host;
-"FFR_ID=10" is the ID of the contaienr in FreeFlow. Each container on the same host should have a unique FFR_ID.
-We are removing FFR_ID in next version. 
+Environment variable "FFR_NAME=router1" points to the container to the router (router1) on the same host; "FFR_ID=10" is the ID of the contaienr in FreeFlow. Each container on the same host should have a unique FFR_ID. We are removing FFR_ID in next version. 
 
 Download and install the same version of RDMA libraries and drivers as Step 1. Then build the the code of libraries/ and libmempool/ and install to /usr/lib/ (which is default).
 
-Step 4: Repeat Step 3 to start customer containers in more hosts.
-You can capture a Docker image of node1 for avoiding repeating the installations and building.
+Step 4: Repeat Step 3 to start customer containers in more hosts. You can capture a Docker image of node1 for avoiding repeating the installations and building.
 
 Attention: the released implementation hard-codes the host IPs and virtual IP to host IP mapping in https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.cpp#L215 and https://github.com/Microsoft/Freeflow/blob/master/ffrouter/ffrouter.h#L76. For quick tests, you can edit it according to your environment. Ideally, the router should read it from container overlay controller/zookeeper/etcd.
 
