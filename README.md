@@ -1,7 +1,7 @@
 
 # Freeflow #
 
-Freeflow is a high performance container overlay network that enables RDMA communication and accelerates TCP socket to the same as bare metal. 
+Freeflow is a high performance container overlay network that enables RDMA communication and accelerates TCP socket to the *same* as the bare metal network. 
 
 Freeflow works on top of popular overlay network solutions including Flannel, Weave, etc. The containers have their individual virtual network interfaces and IP addresses, and do not need direct access to the hardware NIC interface. A lightweight Freeflow library inside containers intercepts RDMA and TCP socket APIs, and a Freeflow router outside containers helps accelerate those APIs. 
 
@@ -9,11 +9,13 @@ Freeflow is developed based on Linux RDMA project (https://github.com/linux-rdma
 
 # Three working modes #
 
-Freeflow works in three modes: fully-isolated RDMA, semi-isolated RDMA, and TCP.
+Freeflow works in three modes: fully-isolated RDMA (**master branch**), semi-isolated RDMA, and TCP (**tcp branch**).
 
-Current released version only includes fully-isolated RDMA, which provides the best isolation between different containers and works the best in multi-tenant environment. While it offers typical RDMA performance (40Gbps throughput and 1 microsecond latency), this comes with some CPU overhead penalty.
+Current released version only includes fully-isolated RDMA, which provides the best isolation between different containers and works the best in multi-tenant environment, e.g., cloud. While it offers typical RDMA performance (40Gbps throughput and 1 or 2 microsecond latency), this comes with some CPU overhead penalty.
 
-We will release the other two modes in the future. Semi-isolated RDMA provides the same CPU efficiency as bare-metal RDMA, while does not have full isolation on the data path. The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
+The TCP mode accelerates the TCP socket performance to the same as bare-metal. On a typical Linux server with a 40Gbps NIC, it can achieve 25Gbps throughput for a single TCP connection and less than 20 microsecond latency.
+
+We will release semi-isolated RDMA in the future. It has the same CPU efficiency as bare-metal RDMA, while does not have full isolation on the data path. It works the best for single-tenant clusters, e.g., an internal cluster.
 
 # Performance #
 
