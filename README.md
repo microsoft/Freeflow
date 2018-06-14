@@ -29,7 +29,7 @@ Below are the steps of running Freeflow in fully-isolated RDMA mode. For TCP mod
 
 Step 1: Start Freeflow router (one instance per server)
 ```
-sudo docker run --name router1 --net host -e "FFR_NAME=router1" -e "LD_LIBRARY_PATH=/usr/lib/:/usr/local/lib/:/usr/lib64/" -v /sys/class/:/sys/class/ -v /freeflow:/freeflow -v /dev/:/dev/ --privileged -it ubuntu:14.04 /bin/bash
+sudo docker run --name router1 --net host -e "FFR_NAME=router1" -e "LD_LIBRARY_PATH=/usr/lib/:/usr/local/lib/:/usr/lib64/" -v /sys/class/:/sys/class/ -v /freeflow:/freeflow -v /dev/:/dev/ --privileged -it -d ubuntu:14.04 /bin/bash
 ```
 
 Then log into the router container with
@@ -49,7 +49,7 @@ Step 2: Repeat Step 1 to start router in other hosts. You can capture a Docker i
 
 Step 3: Start a customer container on the same host as router1
 ```
-sudo docker run --name node1 --net weave -e "FFR_NAME=router1" -e "FFR_ID=10" -e "LD_LIBRARY_PATH=/usr/lib" -e --ipc container:router1 -v /sys/class/:/sys/class/ -v /freeflow:/freeflow -v /dev/:/dev/ --privileged --device=/dev/infiniband/uverbs0 --device=/dev/infiniband/rdma_cm -it ubuntu /bin/bash
+sudo docker run --name node1 --net weave -e "FFR_NAME=router1" -e "FFR_ID=10" -e "LD_LIBRARY_PATH=/usr/lib" -e --ipc=container:router1 -v /sys/class/:/sys/class/ -v /freeflow:/freeflow -v /dev/:/dev/ --privileged --device=/dev/infiniband/uverbs0 --device=/dev/infiniband/rdma_cm -it -d ubuntu /bin/bash
 ```
 
 You may use any container overlay solution. In this example, we use Weave (https://github.com/weaveworks/weave).
