@@ -43,7 +43,9 @@ Step 3: repeat the above steps on another server. Then enter the two iperf3 cont
 
 You can use any other application images to replace iperf3. 
 
-"VNET_PREFIX=10.32.0.0/12" means FreeFlow will treat IP addresses within "10.32.0.0/12" as overlay IP and others as external IP. For external IPs, connections will bypass FreeFlow and use the original network path. If you do not set this environment variable, FreeFlow will intercept all addresses, and the container may lose connectivity to the Internet. 
+"VNET_PREFIX=10.32.0.0/12" means FreeFlow will treat IP addresses within "10.32.0.0/12" as overlay IP and accelerate connections between two IPs in this range. For IP addresses outside this range, Freeflow will do nothing and use the original network path. 
+
+Freeflow requires both ends are accelerated by Freeflow, or both ends are not accelerated. Mix-and-match will not work. So a good practice is to set VNET_PREFIX the same for all containers and large enough to cover all the IPs you want to accelerate. 
 
 "LD_PRELOAD=/freeflow/libfsocket.so" means all socket calls will be intercepted by FreeFlow. If you want to temporarily disable Freeflow for a specific application, run like this
 
