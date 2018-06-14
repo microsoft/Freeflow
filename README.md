@@ -37,17 +37,15 @@ Then log into the router container with
 sudo docker run exec -it router1 bash
 ```
 
-Download and install the same version of RDMA libraries and drivers as the host machine.
+Download and install RDMA libraries and drivers in router container.
 Currently, Freeflow is developed and tested with "MLNX_OFED_LINUX-4.0-2.0.0.1-ubuntu14.04-x86_64.tgz"
 You can download it from http://www.mellanox.com/page/products_dyn?product_family=26.
 
-Then, build the code in libraries-router/librdmacm-1.1.0mlnx/, and install the library to /usr/lib/ (which is default).
+Then, build the code using the script build-router.sh. In ffrouter/, start the router by running "./router router1".
 
-Finally, build the code of ffrouter/ with "build.sh" in the source folder and run "./router router1".
+Step 2: Repeat Step 1 to start the router in other hosts. You can capture a Docker image of router1 for avoiding repeating the installations and building.
 
-Step 2: Repeat Step 1 to start router in other hosts. You can capture a Docker image of router1 for avoiding repeating the installations and building.
-
-Step 3: Start a customer container on the same host as router1
+Step 3: Start an application container on the same host as router1
 ```
 sudo docker run --name node1 --net weave -e "FFR_NAME=router1" -e "FFR_ID=10" -e "LD_LIBRARY_PATH=/usr/lib" -e --ipc=container:router1 -v /sys/class/:/sys/class/ -v /freeflow:/freeflow -v /dev/:/dev/ --privileged --device=/dev/infiniband/uverbs0 --device=/dev/infiniband/rdma_cm -it -d ubuntu /bin/bash
 ```
