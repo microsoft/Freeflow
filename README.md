@@ -74,7 +74,7 @@ This implementation is a research prototype that shows the feasibility. It is NO
 
 [Yibo Zhu](http://yibozhu.com/) (yibzh@microsoft.com)
 
-[Hongqiang Harry Liu](http://www.hongqiangliu.com/) (lampson0505@gmail.com)
+[Hongqiang Harry Liu](http://www.hongqiangliu.com/) (hongqiang.liu@alibaba-inc.com)
 
 [Daehyeok Kim](https://daehyeok.kim/) (daehyeok@cs.cmu.edu)
 
