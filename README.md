@@ -34,7 +34,7 @@ sudo docker run --name router1 --net host -e "FFR_NAME=router1" -e "LD_LIBRARY_P
 
 Then log into the router container with
 ```
-sudo docker run exec -it router1 bash
+sudo docker exec -it router1 bash
 ```
 
 Download and install RDMA libraries and drivers in router container.
